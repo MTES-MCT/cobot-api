@@ -123,5 +123,11 @@ export default {
       );
       return token;
     },
+
+    loginByBot: async (parent, args, { models, req }) => 
+      models.Users.findOne({
+        'bots.channel': args.channel,
+        'bots.channelUid': args.channelUid,
+      }),
   },
 };

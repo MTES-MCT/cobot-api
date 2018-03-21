@@ -62,9 +62,10 @@ export default `
   }
 
   type Mutation {
-    createUser(name: String!, email: String!, password: String!, role: Int, bots: BotInput): User!
+    createUser(name: String, email: String, password: String!, role: Int!, bots: BotInput): User!
     updateUser(id: ID!, name: String, email: String, password: String, role: Int, bots: BotInput): User!
     authorization(email: String!, password: String!): String!
+    loginByBot(channel: String!, channelUid: String!): User!
   }
 
 `;
