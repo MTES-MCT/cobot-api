@@ -3,6 +3,15 @@ export default `
   directive @isAuthenticated on QUERY | FIELD
   directive @hasRole(role: Int) on QUERY | FIELD
 
+  type Action {
+    id: ID!
+    name: String
+    text: String
+    type: String
+    order: Int
+    value: String
+  }
+
   type Bot {
     id: ID!
     channel: String
@@ -16,6 +25,26 @@ export default `
     token: String
   }
 
+  type Message {
+    id: ID!
+    text: [MessageText]
+    attachments: [Attachment]
+  }
+
+  type MessageText {
+    text: String
+    counter: Int
+  }
+
+  type Attachment {
+    id: ID!
+    text: [MessageText]
+    color: String
+    callback: String
+    actions: [Action]
+    order: Int
+  }
+
   type User {
     id: ID!
     email: String
@@ -27,6 +56,7 @@ export default `
 
   type Query {
     Me: User
+    Message(name: String!): Message
     User(id: ID!): User
     Users(limit: Int): [User]
   }
