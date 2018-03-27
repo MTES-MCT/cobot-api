@@ -6,6 +6,21 @@ import { checkAuthAndResolve, checkRoleAndResolve } from './policies';
 
 export default {
   Query: {
+    DataSet: (parent, args, { models, req }) => checkAuthAndResolve(
+      req,
+      async (user) => {
+        const data = await models.DataSet.aggregate()
+          .match({
+            'usersAnswers.userId': {
+              $ne: models.toObjectId(user.id),
+            },
+          })
+          .sample(1);
+        const orderedAvailableAnswers = _.sortBy(data[0].availableAnswers, ['order']);
+        data[0].availableAnswers = orderedAvailableAnswers;
+        return data[0];
+      },
+    ),
     Me: (parent, args, { models, req }) => checkAuthAndResolve(
       req,
       async (token) => {
@@ -124,10 +139,22 @@ export default {
       return token;
     },
 
-    loginByBot: async (parent, args, { models, req }) => 
+    loginByBot: async (parent, args, { models }) =>
       models.Users.findOne({
         'bots.channel': args.channel,
         'bots.channelUid': args.channelUid,
       }),
+
+    dataSetAnswers: async (parent, args, { models, req }) =>
+      checkAuthAndResolve(req, user =>
+        models.DataSet.findByIdAndUpdate(args.id, {
+          $push: {
+            usersAnswers: {
+              userId: user.id,
+              answers: args.answer,
+              createdAt: new Date(),
+            },
+          },
+        })),
   },
 };

@@ -3,14 +3,20 @@ import config from '../config';
 import Logger from '../utils/logger';
 
 import Users from './users';
+import DataSet from './dataset';
 import * as Messages from './messages';
 
 mongoose.set('debug', false);
 mongoose.connect(`mongodb://${config.database.host}:${config.database.port}/${config.database.name}`).then(
   () => {
-    exports.Users = Users;
-    exports.Messages = Messages.Message;
     exports.Attachments = Messages.Attachments;
+    exports.DataSet = DataSet;
+    exports.Messages = Messages.Message;
+    exports.Users = Users;
+
+    // utils
+    exports.toObjectId = string => mongoose.Types.ObjectId(string);
+
     Logger.log('info', 'Connected to database "%s"', config.database.name);
   },
   (err) => { throw new Error('Unable to connect to mongodb', err); },

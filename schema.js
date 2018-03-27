@@ -12,6 +12,20 @@ export default `
     value: String
   }
 
+  type Answer {
+    text: String!
+    order: Int!
+  }
+
+  type Attachment {
+    id: ID!
+    text: [MessageText]
+    color: String
+    callback: String
+    actions: [Action]
+    order: Int
+  }
+
   type Bot {
     id: ID!
     channel: String
@@ -25,6 +39,15 @@ export default `
     token: String
   }
 
+  type DataSet {
+    _id: ID!
+    name: String!
+    file: String
+    question: String
+    availableAnswers: [Answer]
+    userAnswers: [UserAnswer]
+  }
+
   type Message {
     id: ID!
     text: [MessageText]
@@ -36,15 +59,6 @@ export default `
     counter: Int
   }
 
-  type Attachment {
-    id: ID!
-    text: [MessageText]
-    color: String
-    callback: String
-    actions: [Action]
-    order: Int
-  }
-
   type User {
     id: ID!
     email: String
@@ -54,7 +68,15 @@ export default `
     bots: [Bot]
   }
 
+  type UserAnswer {
+    userId: ID!
+    answer: String!
+    createdAt: String
+  }
+
   type Query {
+    # Fecth one random data where user do not answer.
+    DataSet: DataSet
     Me: User
     Message(name: String!): Message
     User(id: ID!): User
@@ -66,6 +88,7 @@ export default `
     updateUser(id: ID!, name: String, email: String, password: String, role: Int, bots: BotInput): User!
     authorization(email: String!, password: String!): String!
     loginByBot(channel: String!, channelUid: String!): User!
+    dataSetAnswers(id: ID!, answer: String!): DataSet!
   }
 
 `;
