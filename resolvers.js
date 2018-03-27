@@ -90,7 +90,14 @@ export default {
     createUser: async (parent, args, { models, req }) => {
       const user = args;
       user.password = await bcrypt.hash(user.password, 12);
-      return checkRoleAndResolve(req, 80, () => models.Users.create(user));
+      return checkRoleAndResolve(req, 80, () => {
+        try {
+          const newUser = models.Users.create(user);
+          return newUser;
+        } catch (error) {
+          return error;
+        }
+      });
     },
 
     updateUser: async (parent, args, { models, req }) => {
@@ -103,16 +110,14 @@ export default {
         bot = user.bots;
         delete user.bots;
       }
-      return checkAuthAndResolve(req, () => 
+      return checkAuthAndResolve(req, () =>
         models.Users.findByIdAndUpdate(user.id, user, () => {
           if (bot) {
             return models.Users.findByIdAndUpdate(user.id, {
               $push: {
                 bots: bot,
               },
-            }, { new: true }, () => {
-              return user.id;
-            });
+            }, { new: true }, () => user.id);
           }
         }));
     },
