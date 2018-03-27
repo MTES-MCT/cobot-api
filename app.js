@@ -22,6 +22,8 @@ const app = express();
 
 app.use(cors('*'));
 
+app.use(express.static('assets'));
+
 app.use(
   '/graphiql',
   graphiqlExpress({

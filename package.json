@@ -35,7 +35,7 @@
   },
   "scripts": {
     "start": "NODE_ENV=production node app.js",
-    "dev": "NODE_ENV=development DB_HOST=localhost DB_PORT=27170 DB_NAME=coconstruisons JWT_SECRET=\"M?w01S26;f<B&6D\" nodemon -L app.js --exec babel-node --presets babel-preset-env",
+    "dev": "NODE_ENV=development DB_HOST=localhost DB_PORT=27170 DB_NAME=coconstruisons JWT_SECRET=\"M?w01S26;f<B&6D\" PORT=3040 nodemon -L app.js --exec babel-node --presets babel-preset-env",
     "test": "mocha --require babel-polyfill --require babel-register",
     "lint": "node ./node_modules/eslint/bin/eslint . --max-warnings=0 && echo '✔  Your code looks good.'",
     "custom-tests": "echo \"(No other custom tests yet.)\" && echo",
