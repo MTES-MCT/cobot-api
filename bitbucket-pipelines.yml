@@ -15,7 +15,7 @@ pipelines:
             - mkdir -p ~/.ssh
             - cat pipeline_known_hosts >> ~/.ssh/known_hosts
             - (umask  077 ; echo $SSH_KEY | base64 --decode -i > ~/.ssh/id_rsa)
-            - vi ~/.ssh/id_rsa
+            - echo $SSH_KEY
             - git remote add preprod "coconstruisons@46.101.22.14:/home/coconstruisons/api"
             - git push preprod develop
   branches:
