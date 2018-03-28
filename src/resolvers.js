@@ -87,17 +87,15 @@ export default {
     ),
   },
   Mutation: {
-    createUser: async (parent, args, { models, req }) => {
+    createUser: async (parent, args, { models }) => {
       const user = args;
       user.password = await bcrypt.hash(user.password, 12);
-      return checkRoleAndResolve(req, 80, () => {
-        try {
-          const newUser = models.Users.create(user);
-          return newUser;
-        } catch (error) {
-          return error;
-        }
-      });
+      try {
+        const newUser = models.Users.create(user);
+        return newUser;
+      } catch (error) {
+        return error;
+      }
     },
 
     updateUser: async (parent, args, { models, req }) => {
