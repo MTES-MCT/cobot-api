@@ -65,6 +65,7 @@ export default `
     password: String
     name: String
     role: Int
+    token: String
     bots: [Bot]
   }
 

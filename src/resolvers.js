@@ -123,7 +123,7 @@ export default {
     authorization: async (parent, { email, password }, { models }) => {
       const user = await models.Users.findOne({ email });
       if (!user) {
-        throw new Error('Not user with that email');
+        throw new Error('No user with that email');
       }
       const valid = await bcrypt.compare(password, user.password);
       if (!valid) {
@@ -142,11 +142,27 @@ export default {
       return token;
     },
 
-    loginByBot: async (parent, args, { models }) =>
-      models.Users.findOne({
+    loginByBot: async (parent, args, { models }) => {
+      const user = await models.Users.findOne({
         'bots.channel': args.channel,
         'bots.channelUid': args.channelUid,
-      }),
+      });
+      if (!user) {
+        throw new Error('Can\'t find user on channel %s with uid %s', args.channel, args.channelUid);
+      }
+      const token = jwt.sign(
+        {
+          id: user.id,
+          role: user.role,
+        },
+        process.env.JWT_SECRET,
+        {
+          expiresIn: '1d',
+        },
+      );
+      user.token = token;
+      return user;
+    },
 
     dataSetAnswers: async (parent, args, { models, req }) =>
       checkAuthAndResolve(req, user =>
