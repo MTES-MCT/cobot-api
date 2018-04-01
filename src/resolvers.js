@@ -4,6 +4,8 @@ import _ from 'lodash';
 import Promise from 'bluebird';
 import { checkAuthAndResolve, checkRoleAndResolve } from './policies';
 
+const AUTH_SUPERADMIN = 100;
+
 export default {
   Query: {
     DataSet: (parent, args, { models, req }) => checkAuthAndResolve(
@@ -81,10 +83,30 @@ export default {
       req,
       () => models.Users.findById(args.id),
     ),
-    Users: (parent, args, { models, req }) => checkAuthAndResolve(
+    Users: (parent, args, { models, req }) => checkRoleAndResolve(
       req,
+      AUTH_SUPERADMIN,
       () => models.Users.find(),
     ),
+    WakeUpUsers: async (parent, args, { models, req }) => {
+      const users = await checkRoleAndResolve(
+        req,
+        AUTH_SUPERADMIN,
+        () => models.Users.find({
+          $or: [
+            {
+              'activity.lastAnswersAt': {
+                $lte: new Date(args.lastAnswers),
+              },
+            },
+            {
+              'activity.lastAnswersAt': null,
+            },
+          ],
+        }),
+      );
+      return users;
+    },
   },
   Mutation: {
     createUser: async (parent, args, { models }) => {
