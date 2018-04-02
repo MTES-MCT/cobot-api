@@ -67,12 +67,33 @@ export default `
     role: Int
     token: String
     bots: [Bot]
+    activity: UserActivity
+  }
+
+  type UserActivity {
+    lastAnswersAt: String
+    wakeUpLogs: WakeUpLogs
+  }
+
+  input UserActivityInput {
+    lastAnswersAt: String
+    wakeUpLogs: WakeUpLogsInput
   }
 
   type UserAnswer {
     userId: ID!
     answer: String!
     createdAt: String
+  }
+
+  type WakeUpLogs {
+    at: String,
+    channel: String,
+  }
+
+  input WakeUpLogsInput {
+    at: String,
+    channel: String
   }
 
   type Query {
@@ -86,7 +107,7 @@ export default `
 
   type Mutation {
     createUser(name: String, email: String, password: String!, role: Int!, bots: BotInput): User!
-    updateUser(id: ID!, name: String, email: String, password: String, role: Int, bots: BotInput): User!
+    updateUser(id: ID!, name: String, email: String, password: String, role: Int, bots: BotInput, activity: UserActivityInput): User!
     authorization(email: String!, password: String!): String!
     loginByBot(channel: String!, channelUid: String!): User!
     dataSetAnswers(id: ID!, answer: String!): DataSet!

@@ -89,9 +89,23 @@ export default {
   Mutation: {
     createUser: async (parent, args, { models }) => {
       const user = args;
+      let bot;
+      if (user.bots) {
+        bot = user.bots;
+        delete user.bots;
+      }
       user.password = await bcrypt.hash(user.password, 12);
       try {
-        const newUser = models.Users.create(user);
+        const newUser = await models.Users.findOneAndUpdate({
+          email: user.email,
+        }, user, { upsert: true });
+        if (bot) {
+          await models.Users.findByIdAndUpdate(newUser.id, {
+            $push: {
+              bots: bot,
+            },
+          });
+        }
         return newUser;
       } catch (error) {
         return error;
@@ -100,6 +114,8 @@ export default {
 
     updateUser: async (parent, args, { models, req }) => {
       const user = args;
+      const { id } = user;
+      delete user.id;
       let bot;
       if (user.password) {
         user.password = await bcrypt.hash(user.password, 12);
@@ -108,16 +124,19 @@ export default {
         bot = user.bots;
         delete user.bots;
       }
-      return checkAuthAndResolve(req, () =>
-        models.Users.findByIdAndUpdate(user.id, user, () => {
-          if (bot) {
-            return models.Users.findByIdAndUpdate(user.id, {
-              $push: {
-                bots: bot,
-              },
-            }, { new: true }, () => user.id);
-          }
-        }));
+
+      const updateUser = await checkAuthAndResolve(req, () =>
+        models.Users.findByIdAndUpdate(id, user));
+
+      if (bot) {
+        await checkAuthAndResolve(req, () =>
+          models.Users.findByIdAndUpdate(id, {
+            $push: {
+              bots: bot,
+            },
+          }));
+      }
+      return updateUser;
     },
 
     authorization: async (parent, { email, password }, { models }) => {
