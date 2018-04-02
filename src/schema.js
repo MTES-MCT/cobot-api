@@ -112,5 +112,4 @@ export default `
     loginByBot(channel: String!, channelUid: String!): User!
     dataSetAnswers(id: ID!, answer: String!): DataSet!
   }
-
 `;
