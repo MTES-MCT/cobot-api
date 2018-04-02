@@ -67,12 +67,23 @@ export default `
     role: Int
     token: String
     bots: [Bot]
+    activity: UserActivity
+  }
+
+  type UserActivity {
+    lastAnswersAt: String,
+    wakeUpLogs: WakeUpLogs
   }
 
   type UserAnswer {
     userId: ID!
     answer: String!
     createdAt: String
+  }
+
+  type WakeUpLogs {
+    at: String,
+    channel: String,
   }
 
   type Query {
@@ -82,6 +93,7 @@ export default `
     Message(name: String!): Message
     User(id: ID!): User
     Users(limit: Int): [User]
+    WakeUpUsers(lastAnswers: String): [User]
   }
 
   type Mutation {

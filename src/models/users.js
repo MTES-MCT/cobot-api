@@ -16,6 +16,13 @@ const usersSchema = mongoose.Schema({
     channelUid: String,
     token: String,
   }],
+  activity: {
+    lastAnswersAt: Date,
+    wakeUpLogs: {
+      at: Date,
+      channel: String,
+    },
+  },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 }, {
