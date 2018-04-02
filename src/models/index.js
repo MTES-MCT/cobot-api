@@ -6,7 +6,7 @@ import Users from './users';
 import DataSet from './dataset';
 import * as Messages from './messages';
 
-mongoose.set('debug', true);
+mongoose.set('debug', false);
 mongoose.connect(`mongodb://${config.database.user}:${config.database.password}@${config.database.host}:${config.database.port}/${config.database.name}?authSource=admin`).then(
   () => {
     exports.Attachments = Messages.Attachments;
