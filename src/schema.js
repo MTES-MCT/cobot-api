@@ -20,6 +20,7 @@ export default `
   type Attachment {
     id: ID!
     text: [MessageText]
+    image: String
     color: String
     callback: String
     actions: [Action]
@@ -72,11 +73,13 @@ export default `
 
   type UserActivity {
     lastAnswersAt: String
+    numAnswers: Int
     wakeUpLogs: WakeUpLogs
   }
 
   input UserActivityInput {
     lastAnswersAt: String
+    numAnswers: Int
     wakeUpLogs: WakeUpLogsInput
   }
 
@@ -111,6 +114,6 @@ export default `
     updateUser(id: ID!, name: String, email: String, password: String, role: Int, bots: BotInput, activity: UserActivityInput): User!
     authorization(email: String!, password: String!): String!
     loginByBot(channel: String!, channelUid: String!): User!
-    dataSetAnswers(id: ID!, answer: String!): DataSet!
+    dataSetAnswers(id: ID!, answer: String!): User!
   }
 `;

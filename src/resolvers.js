@@ -205,9 +205,11 @@ export default {
       return user;
     },
 
-    dataSetAnswers: async (parent, args, { models, req }) =>
-      checkAuthAndResolve(req, user =>
-        models.DataSet.findByIdAndUpdate(args.id, {
+    dataSetAnswers: async (parent, args, { models, req }) => {
+      let User;
+      await checkAuthAndResolve(req, (user) => {
+        User = user;
+        return models.DataSet.findByIdAndUpdate(args.id, {
           $push: {
             usersAnswers: {
               userId: user.id,
@@ -215,6 +217,17 @@ export default {
               createdAt: new Date(),
             },
           },
-        })),
+        });
+      });
+      const updatedUser = await models.Users.findByIdAndUpdate(User.id, {
+        'activity.lastAnswersAt': new Date(),
+        $inc: {
+          'activity.numAnswers': 1,
+        },
+      }, {
+        new: true,
+      });
+      return updatedUser;
+    },
   },
 };

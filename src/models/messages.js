@@ -12,6 +12,7 @@ const messagesSchema = mongoose.Schema({
 
 const attachementsSchema = mongoose.Schema({
   text: [{ text: String, counter: Number }],
+  image: String,
   color: String,
   callback: String,
   actions: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Actions' }],
