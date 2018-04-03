@@ -67,6 +67,7 @@ export default `
     name: String
     role: Int
     token: String
+    reminder: String
     bots: [Bot]
     activity: UserActivity
   }
@@ -111,7 +112,8 @@ export default `
   type Mutation {
     createUser(name: String, email: String, password: String!, role: Int!, bots: BotInput): User!
     updateUser(name: String, email: String, password: String, role: Int, bots: BotInput, activity: UserActivityInput): User!
-    updateUserActivity(id: ID!, activity: UserActivityInput): User!
+    updateUserReminder(reminder: String!): User!
+    updateUserActivity(id: ID!, activity: UserActivityInput!): User!
     authorization(email: String!, password: String!): String!
     loginByBot(channel: String!, channelUid: String!): User!
     dataSetAnswers(id: ID!, answer: String!): User!

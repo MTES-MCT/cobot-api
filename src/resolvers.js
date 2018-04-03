@@ -93,14 +93,30 @@ export default {
         req,
         AUTH_SUPERADMIN,
         () => models.Users.find({
-          $or: [
+          $and: [
             {
-              'activity.lastAnswersAt': {
-                $lte: new Date(args.lastAnswers),
-              },
+              $or: [
+                {
+                  reminder: {
+                    $lte: new Date(),
+                  },
+                },
+                {
+                  reminder: null,
+                },
+              ],
             },
             {
-              'activity.lastAnswersAt': null,
+              $or: [
+                {
+                  'activity.lastAnswersAt': {
+                    $lte: new Date(args.lastAnswers),
+                  },
+                },
+                {
+                  'activity.lastAnswersAt': null,
+                },
+              ],
             },
           ],
         }),
@@ -167,6 +183,18 @@ export default {
         AUTH_SUPERADMIN,
         () => models.Users.findByIdAndUpdate(args.id, {
           activity: args.activity,
+        }, {
+          new: true,
+        }),
+      );
+      return users;
+    },
+
+    updateUserReminder: async (parent, args, { models, req }) => {
+      const users = await checkAuthAndResolve(
+        req,
+        user => models.Users.findByIdAndUpdate(user.id, {
+          reminder: args.reminder,
         }, {
           new: true,
         }),
