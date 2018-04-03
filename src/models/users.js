@@ -18,7 +18,7 @@ const usersSchema = mongoose.Schema({
   }],
   activity: {
     lastAnswersAt: Date,
-    numAnswers: Number,
+    numAnswers: { type: Number, default: 0 },
     wakeUpLogs: {
       at: Date,
       channel: String,
