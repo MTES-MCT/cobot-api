@@ -136,7 +136,6 @@ export default {
 
     updateUser: async (parent, args, { models, req }) => {
       const user = args;
-      const { id } = user;
       delete user.id;
       let bot;
       if (user.password) {
@@ -147,18 +146,32 @@ export default {
         delete user.bots;
       }
 
-      const updateUser = await checkAuthAndResolve(req, () =>
-        models.Users.findByIdAndUpdate(id, user));
+      const updateUser = await checkAuthAndResolve(req, userJwt =>
+        models.Users.findByIdAndUpdate(userJwt.id, user));
 
       if (bot) {
-        await checkAuthAndResolve(req, () =>
-          models.Users.findByIdAndUpdate(id, {
+        await checkAuthAndResolve(req, userJwt =>
+          models.Users.findByIdAndUpdate(userJwt.id, {
             $push: {
               bots: bot,
             },
           }));
       }
+
       return updateUser;
+    },
+
+    updateUserActivity: async (parent, args, { models, req }) => {
+      const users = await checkRoleAndResolve(
+        req,
+        AUTH_SUPERADMIN,
+        () => models.Users.findByIdAndUpdate(args.id, {
+          activity: args.activity,
+        }, {
+          new: true,
+        }),
+      );
+      return users;
     },
 
     authorization: async (parent, { email, password }, { models }) => {

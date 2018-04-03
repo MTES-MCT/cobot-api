@@ -100,7 +100,6 @@ export default `
   }
 
   type Query {
-    # Fecth one random data where user do not answer.
     DataSet: DataSet
     Me: User
     Message(name: String!): Message
@@ -111,7 +110,8 @@ export default `
 
   type Mutation {
     createUser(name: String, email: String, password: String!, role: Int!, bots: BotInput): User!
-    updateUser(id: ID!, name: String, email: String, password: String, role: Int, bots: BotInput, activity: UserActivityInput): User!
+    updateUser(name: String, email: String, password: String, role: Int, bots: BotInput, activity: UserActivityInput): User!
+    updateUserActivity(id: ID!, activity: UserActivityInput): User!
     authorization(email: String!, password: String!): String!
     loginByBot(channel: String!, channelUid: String!): User!
     dataSetAnswers(id: ID!, answer: String!): User!
