@@ -10,11 +10,17 @@ const checkAuthAndResolve = (context, controller) => {
       message: 'You must supply a JWT for authorization!',
     });
   }
-  const decoded = jwt.verify(
-    token.replace('Bearer ', ''),
-    process.env.JWT_SECRET,
-  );
-  return controller.apply(this, [decoded]);
+  try {
+    const decoded = jwt.verify(
+      token.replace('Bearer ', ''),
+      process.env.JWT_SECRET,
+    );
+    return controller.apply(this, [decoded]);
+  } catch (error) {
+    throw new AuthorizationError({
+      message: 'Bad token',
+    });
+  }
 };
 
 const checkRoleAndResolve = (
