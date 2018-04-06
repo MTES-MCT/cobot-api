@@ -136,9 +136,9 @@ export default {
       try {
         const newUser = await models.Users.findOneAndUpdate({
           email: user.email,
-        }, user, { upsert: true });
+        }, user, { new: true, upsert: true });
         if (bot) {
-          await models.Users.findByIdAndUpdate(newUser.id, {
+          await models.Users.findByIdAndUpdate(newUser._id, {
             $push: {
               bots: bot,
             },
