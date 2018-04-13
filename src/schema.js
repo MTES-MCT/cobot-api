@@ -51,6 +51,7 @@ export default `
 
   type Message {
     id: ID!
+    name: String!
     text: [MessageText]
     attachments: [Attachment]
   }
@@ -103,6 +104,7 @@ export default `
   type Query {
     DataSet: DataSet
     Me: User
+    Messages: [Message]
     Message(name: String!): Message
     User(id: ID!): User
     Users(limit: Int): [User]
@@ -117,5 +119,6 @@ export default `
     authorization(email: String!, password: String!): String!
     loginByBot(channel: String!, channelUid: String!): User!
     dataSetAnswers(id: ID!, answer: String!): User!
+    deleteMessage(id: ID!): String
   }
 `;

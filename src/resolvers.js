@@ -30,6 +30,17 @@ export default {
         return user;
       },
     ),
+    Messages: async (parent, args, { models }) => {
+      const messages = await models.Messages
+        .find()
+        .populate({
+          path: 'attachments',
+          populate: [{
+            path: 'actions',
+          }],
+        });
+      return messages;
+    },
     Message: (parent, args, { models, req }) => checkAuthAndResolve(
       req,
       async () => {
@@ -270,5 +281,11 @@ export default {
       });
       return updatedUser;
     },
+
+    deleteMessage: (parent, args, { models, req }) => checkRoleAndResolve(
+      req,
+      AUTH_SUPERADMIN,
+      () => models.Messages.remove({ _id: args.id }),
+    ),
   },
 };
