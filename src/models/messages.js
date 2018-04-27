@@ -32,8 +32,8 @@ const actionsSchema = mongoose.Schema({
   collection: 'actions',
 });
 
-mongoose.model('Actions', actionsSchema);
-const Message = mongoose.model('Messages', messagesSchema);
+const Actions = mongoose.model('Actions', actionsSchema);
 const Attachments = mongoose.model('Attachments', attachementsSchema);
+const Message = mongoose.model('Messages', messagesSchema);
 
-export { Message, Attachments };
+export { Actions, Attachments, Message };

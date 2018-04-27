@@ -71,6 +71,7 @@ app.use(
   bodyParser.json(),
   graphqlExpress(req => ({
     schema,
+    debug: false,
     context: {
       models,
       req,
