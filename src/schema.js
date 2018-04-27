@@ -12,6 +12,10 @@ export default `
     value: String
   }
 
+  input ActionInput {
+    id: ID!
+  }
+
   type Answer {
     text: String!
     order: Int!
@@ -25,6 +29,14 @@ export default `
     callback: String
     actions: [Action]
     order: Int
+  }
+
+  input AttachmentInput {
+    id: ID!
+    text: [MessageInput]
+    callback: String
+    color: String
+    image: String
   }
 
   type Bot {
@@ -57,6 +69,11 @@ export default `
   }
 
   type MessageText {
+    text: String
+    counter: Int
+  }
+
+  input MessageInput {
     text: String
     counter: Int
   }
@@ -102,10 +119,11 @@ export default `
   }
 
   type Query {
+    Actions: [Action]
     DataSet: DataSet
     Me: User
     Messages: [Message]
-    Message(name: String!): Message
+    Message(name: String, id: ID): Message
     User(id: ID!): User
     Users(limit: Int): [User]
     WakeUpUsers(lastAnswers: String): [User]
@@ -119,6 +137,7 @@ export default `
     authorization(email: String!, password: String!): String!
     loginByBot(channel: String!, channelUid: String!): User!
     dataSetAnswers(id: ID!, answer: String!): User!
+    updateMessage(id: ID!, message: [MessageInput], attachments: [AttachmentInput], actions: [ActionInput]): ID!
     deleteMessage(id: ID!): String
   }
 `;

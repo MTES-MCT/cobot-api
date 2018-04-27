@@ -9,6 +9,7 @@ import * as Messages from './messages';
 mongoose.set('debug', false);
 mongoose.connect(`mongodb://${config.database.user}:${config.database.password}@${config.database.host}:${config.database.port}/${config.database.name}?authSource=admin`).then(
   () => {
+    exports.Actions = Messages.Actions;
     exports.Attachments = Messages.Attachments;
     exports.DataSet = DataSet;
     exports.Messages = Messages.Message;
