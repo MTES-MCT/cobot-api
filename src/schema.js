@@ -58,7 +58,8 @@ export default `
     file: String
     question: String
     availableAnswers: [Answer]
-    userAnswers: [UserAnswer]
+    usersAnswers: [UserAnswer]
+    numAnswers: Int,
   }
 
   type Message {
@@ -104,7 +105,7 @@ export default `
 
   type UserAnswer {
     userId: ID!
-    answer: String!
+    answers: String!
     createdAt: String
   }
 
@@ -121,6 +122,7 @@ export default `
   type Query {
     Actions: [Action]
     DataSet: DataSet
+    DataSetBySource(source: String!): [DataSet]
     Me: User
     Messages: [Message]
     Message(name: String, id: ID): Message

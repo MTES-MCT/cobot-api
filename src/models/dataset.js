@@ -1,7 +1,6 @@
 import mongoose from 'mongoose';
 
 const datasetSchema = mongoose.Schema({
-  name: String,
   file: String,
   question: String,
   availableAnswers: [{

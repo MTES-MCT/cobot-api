@@ -28,6 +28,36 @@ export default {
         return data[0];
       },
     ),
+    DataSetBySource: (parent, args, { models, req }) => checkAuthAndResolve(
+      req,
+      async () => {
+        const data = await models.DataSet.aggregate([
+          {
+            $match: {
+              'metadata.source': args.source,
+            },
+          },
+          {
+            $project: {
+              _id: 1,
+              file: 1,
+              usersAnswers: 1,
+              numAnswers: {
+                $size: {
+                  $ifNull: ['$usersAnswers', []],
+                },
+              },
+            },
+          },
+          {
+            $sort: {
+              numAnswers: -1,
+            },
+          },
+        ]).limit(100);
+        return data;
+      },
+    ),
     Me: (parent, args, { models, req }) => checkAuthAndResolve(
       req,
       async (token) => {
