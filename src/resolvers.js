@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import _ from 'lodash';
+import moment from 'moment';
 import Promise from 'bluebird';
 import { checkAuthAndResolve, checkRoleAndResolve } from './policies';
 
@@ -56,6 +57,41 @@ export default {
           },
         ]).limit(100);
         return data;
+      },
+    ),
+    DataSetStats: (parent, args, { models, req }) => checkAuthAndResolve(
+      req,
+      async () => {
+        const output = {
+          datas: 0,
+          contributionTotal: 0,
+          achievement: 0,
+          contributionsGraph: [],
+        };
+        const data = await models.DataSet.aggregate([
+          {
+            $match: {
+              'metadata.source': args.source,
+            },
+          },
+        ]);
+
+        const contributions = _.flatMap(data, 'usersAnswers');
+        const contributionsGroup = _.groupBy(contributions, contribution => moment(contribution.createdAt).format('YYYY-MM-DD'));
+        const contributionsGraph = [];
+        const datasWithoutContribution = _.filter(data, d => d.usersAnswers.length === 0);
+        _.each(contributionsGroup, (contribution, index) => {
+          contributionsGraph.push({
+            createdAt: index,
+            numAnswers: contribution.length,
+          });
+        });
+
+        output.datas = data.length;
+        output.contributions = contributions.length;
+        output.achievement = 100 - Math.ceil((datasWithoutContribution.length * 100) / output.datas);
+        output.contributionsGraph = contributionsGraph;
+        return output;
       },
     ),
     Me: (parent, args, { models, req }) => checkAuthAndResolve(

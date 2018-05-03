@@ -52,6 +52,11 @@ export default `
     token: String
   }
 
+  type ContributionStats {
+    createdAt: String
+    numAnswers: String
+  }
+
   type DataSet {
     _id: ID!
     name: String!
@@ -77,6 +82,13 @@ export default `
   input MessageInput {
     text: String
     counter: Int
+  }
+
+  type Statistics {
+    datas: Int
+    contributions: Int
+    achievement: Int
+    contributionsGraph: [ContributionStats]
   }
 
   type User {
@@ -123,6 +135,7 @@ export default `
     Actions: [Action]
     DataSet: DataSet
     DataSetBySource(source: String!): [DataSet]
+    DataSetStats(source: String!): Statistics
     Me: User
     Messages: [Message]
     Message(name: String, id: ID): Message
