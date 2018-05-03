@@ -80,7 +80,13 @@ export default {
         const contributionsGroup = _.groupBy(contributions, contribution => moment(contribution.createdAt).format('YYYY-MM-DD'));
         const contributionsGraph = [];
         const datasWithoutContribution = _.filter(data, d => d.usersAnswers.length === 0);
-        _.each(contributionsGroup, (contribution, index) => {
+
+        const orderedContributionsGroup = {};
+        _(contributionsGroup).keys().sort().each((key) => {
+          orderedContributionsGroup[key] = contributionsGroup[key];
+        });
+
+        _.each(orderedContributionsGroup, (contribution, index) => {
           contributionsGraph.push({
             createdAt: index,
             numAnswers: contribution.length,
