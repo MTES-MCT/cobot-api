@@ -1,8 +1,12 @@
 import express from 'express';
 import bodyParser from 'body-parser';
+import { createServer } from 'http';
+import { execute, subscribe } from 'graphql';
 import { graphiqlExpress, graphqlExpress } from 'graphql-server-express';
+import { SubscriptionServer } from 'subscriptions-transport-ws';
 import { makeExecutableSchema } from 'graphql-tools';
 import cors from 'cors';
+
 import { attachDirectives } from './directives';
 import config from './config';
 import Logger from './utils/logger';
@@ -19,7 +23,9 @@ const schema = makeExecutableSchema({
 
 attachDirectives(schema);
 
+const WS_GQL_PATH = '/subscriptions';
 const app = express();
+const server = createServer(app);
 const router = express.Router();
 
 // REST Route For Authentication : this route is not in GRAPHQL as
@@ -63,6 +69,7 @@ app.use(
   '/graphiql',
   graphiqlExpress({
     endpointURL: '/graphql',
+    subscriptionsEndpoint: `ws://${config.host}:${config.port}/subscriptions`,
   }),
 );
 
@@ -79,6 +86,18 @@ app.use(
   })),
 );
 
-app.listen(config.port);
-
-Logger.log('info', 'Server %s is listening on port %s', config.name, config.port);
+server.listen(config.port, () => {
+  Logger.log('info', 'Server %s is listening on port %s', config.name, config.port);
+  SubscriptionServer.create(
+    {
+      execute,
+      subscribe,
+      schema,
+    },
+    {
+      server,
+      path: WS_GQL_PATH,
+    },
+  );
+  Logger.log('info', 'API Subscriptions %s is now running on %s', config.name, `ws://${config.host}:${config.port}${WS_GQL_PATH}`);
+});
