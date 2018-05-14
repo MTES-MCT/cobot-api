@@ -3,7 +3,11 @@ import jwt from 'jsonwebtoken';
 import _ from 'lodash';
 import moment from 'moment';
 import Promise from 'bluebird';
+import { PubSub, withFilter } from 'graphql-subscriptions';
 import { checkAuthAndResolve, checkRoleAndResolve } from './policies';
+
+const pubsub = new PubSub();
+const CONTRIBUTION_ADDED = 'newContribution';
 
 const AUTH_SUPERADMIN = 100;
 
@@ -343,9 +347,9 @@ export default {
 
     dataSetAnswers: async (parent, args, { models, req }) => {
       let User;
-      await checkAuthAndResolve(req, (user) => {
+      await checkAuthAndResolve(req, async (user) => {
         User = user;
-        return models.DataSet.findByIdAndUpdate(args.id, {
+        const answer = await models.DataSet.findByIdAndUpdate(args.id, {
           $push: {
             usersAnswers: {
               userId: user.id,
@@ -353,8 +357,19 @@ export default {
               createdAt: new Date(),
             },
           },
-        });
+        }, { new: true });
+        pubsub.publish(
+          CONTRIBUTION_ADDED,
+          {
+            contributionAdded:
+              {
+                source: answer.metadata.source,
+                createdAt: new Date(),
+              },
+          },
+        );
       });
+
       const updatedUser = await models.Users.findByIdAndUpdate(User.id, {
         'activity.lastAnswersAt': new Date(),
         $inc: {
@@ -363,6 +378,7 @@ export default {
       }, {
         new: true,
       });
+
       return updatedUser;
     },
 
@@ -435,5 +451,13 @@ export default {
       AUTH_SUPERADMIN,
       () => models.Messages.remove({ _id: args.id }),
     ),
+  },
+  Subscription: {
+    contributionAdded: {
+      subscribe: withFilter(
+        () => pubsub.asyncIterator(CONTRIBUTION_ADDED),
+        (payload, variables) => payload.contributionAdded.source === variables.source,
+      ),
+    },
   },
 };

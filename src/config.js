@@ -2,6 +2,7 @@ module.exports = {
   name: 'CC-API',
   version: '0.1.0',
   env: process.env.NODE_ENV || 'development',
+  host: process.env.HOST || 'localhost',
   port: process.env.PORT || 4000,
   website_url: 'http://co-construisons.beta.gouv.fr',
   database: {

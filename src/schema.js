@@ -52,6 +52,11 @@ export default `
     token: String
   }
 
+  type NewContribution {
+    source: String
+    createdAt: String
+  }
+
   type ContributionStats {
     createdAt: String
     numAnswers: String
@@ -64,7 +69,7 @@ export default `
     question: String
     availableAnswers: [Answer]
     usersAnswers: [UserAnswer]
-    numAnswers: Int,
+    numAnswers: Int
   }
 
   type Message {
@@ -154,5 +159,9 @@ export default `
     dataSetAnswers(id: ID!, answer: String!): User!
     updateMessage(id: ID!, message: [MessageInput], attachments: [AttachmentInput], actions: [ActionInput]): ID!
     deleteMessage(id: ID!): String
+  }
+
+  type Subscription {
+    contributionAdded(source: String!): NewContribution
   }
 `;
