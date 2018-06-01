@@ -138,7 +138,7 @@ export default `
 
   type Query {
     Actions: [Action]
-    DataSet: DataSet
+    DataSet(source: String): DataSet
     DataSetBySource(source: String!): [DataSet]
     DataSetStats(source: String!): Statistics
     Me: User

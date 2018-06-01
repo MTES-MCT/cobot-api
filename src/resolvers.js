@@ -21,12 +21,16 @@ export default {
     DataSet: (parent, args, { models, req }) => checkAuthAndResolve(
       req,
       async (user) => {
+        const criteria = {
+          'usersAnswers.userId': {
+            $ne: models.toObjectId(user.id),
+          },
+        };
+        if (args.source) {
+          criteria['metadata.source'] = args.source;
+        }
         const data = await models.DataSet.aggregate()
-          .match({
-            'usersAnswers.userId': {
-              $ne: models.toObjectId(user.id),
-            },
-          })
+          .match(criteria)
           .sample(1);
         const orderedAvailableAnswers = _.sortBy(data[0].availableAnswers, ['order']);
         data[0].availableAnswers = orderedAvailableAnswers;
