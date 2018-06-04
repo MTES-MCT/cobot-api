@@ -57,6 +57,18 @@ export default `
     token: String
   }
 
+  type GeoData {
+    createdAt: String
+    location: Location
+    speed: Float
+    altitude: Float
+    accuracy: Int
+  }
+
+  type Location {
+    coordinates: [Float]
+  }
+
   type NewContribution {
     source: String
     createdAt: String
@@ -72,6 +84,7 @@ export default `
     name: String!
     file: String
     question: String
+    metadata: Metadata
     availableAnswers: [Answer]
     usersAnswers: [UserAnswer]
     numAnswers: Int
@@ -92,6 +105,12 @@ export default `
   input MessageInput {
     text: String
     counter: Int
+  }
+
+  type Metadata {
+    id: String
+    source: String
+    geoData: GeoData
   }
 
   type Project {

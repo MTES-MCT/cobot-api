@@ -51,6 +51,7 @@ export default {
               _id: 1,
               file: 1,
               usersAnswers: 1,
+              metadata: 1,
               numAnswers: {
                 $size: {
                   $ifNull: ['$usersAnswers', []],
