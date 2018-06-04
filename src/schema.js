@@ -21,6 +21,11 @@ export default `
     order: Int!
   }
 
+  input AnswerInput {
+    text: String!
+    order: Int!
+  }
+
   type Attachment {
     id: ID!
     text: [MessageText]
@@ -89,6 +94,13 @@ export default `
     counter: Int
   }
 
+  type Project {
+    name: String
+    question: String
+    owner: ID
+    answers: [Answer]
+  }
+
   type Statistics {
     datas: Int
     contributions: Int
@@ -106,6 +118,7 @@ export default `
     reminder: String
     bots: [Bot]
     activity: UserActivity
+    projects: [Project]
   }
 
   type UserActivity {
@@ -159,6 +172,8 @@ export default `
     dataSetAnswers(id: ID!, answer: String!): User!
     updateMessage(id: ID!, message: [MessageInput], attachments: [AttachmentInput], actions: [ActionInput]): ID!
     deleteMessage(id: ID!): String
+    createProject(name: String, question: String, answers: [AnswerInput]): Project!
+    updateProject(id: ID!, name: String, question: String, answers: [AnswerInput]): Project!
   }
 
   type Subscription {

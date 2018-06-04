@@ -112,6 +112,10 @@ export default {
       req,
       async (token) => {
         const user = await models.Users.findById(token.id);
+        const projects = await models.Projects.find({
+          owner: user.id,
+        });
+        user.projects = projects;
         return user;
       },
     ),
@@ -450,10 +454,50 @@ export default {
         return args.id;
       },
     ),
+
     deleteMessage: (parent, args, { models, req }) => checkRoleAndResolve(
       req,
       AUTH_SUPERADMIN,
       () => models.Messages.remove({ _id: args.id }),
+    ),
+
+    createProject: async (parent, args, { models, req }) => checkAuthAndResolve(
+      req,
+      async (user) => {
+        const project = {
+          name: args.name,
+          question: args.question,
+          answers: args.answers,
+          owner: user.id,
+        };
+        try {
+          await models.Projects.create(project);
+          return project;
+        } catch (error) {
+          return error;
+        }
+      },
+    ),
+
+    updateProject: async (parent, args, { models, req }) => checkAuthAndResolve(
+      req,
+      async (user) => {
+        const project = {
+          name: args.name,
+          question: args.question,
+          answers: args.answers,
+          owner: user.id,
+        };
+        try {
+          await models.Projects.findOneAndUpdate({ _id: args.id }, project);
+
+          // update question and answers dataset
+
+          return project;
+        } catch (error) {
+          return error;
+        }
+      },
     ),
   },
   Subscription: {

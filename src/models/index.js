@@ -4,6 +4,7 @@ import Logger from '../utils/logger';
 
 import Users from './users';
 import DataSet from './dataset';
+import Projects from './projects';
 import * as Messages from './messages';
 
 mongoose.set('debug', false);
@@ -14,6 +15,7 @@ mongoose.connect(`mongodb://${config.database.user}:${config.database.password}@
     exports.DataSet = DataSet;
     exports.Messages = Messages.Message;
     exports.Users = Users;
+    exports.Projects = Projects;
 
     // utils
     exports.toObjectId = string => mongoose.Types.ObjectId(string);
