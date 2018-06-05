@@ -187,6 +187,16 @@ export default {
         return message;
       },
     ),
+    Project: (parent, args, { models, req }) => checkAuthAndResolve(
+      req,
+      async (user) => {
+        const project = await models.Projects.findOne({
+          _id: args.id,
+          owner: user.id,
+        });
+        return project;
+      },
+    ),
     User: (parent, args, { models, req }) => checkAuthAndResolve(
       req,
       () => models.Users.findById(args.id),
@@ -483,18 +493,37 @@ export default {
     updateProject: async (parent, args, { models, req }) => checkAuthAndResolve(
       req,
       async (user) => {
-        const project = {
+        const updatedProject = {
           name: args.name,
           question: args.question,
           answers: args.answers,
           owner: user.id,
         };
         try {
-          await models.Projects.findOneAndUpdate({ _id: args.id }, project);
+          const project = await models.Projects.findOne({ _id: args.id });
+          const projectSlugName = project.name.replace(/\s/g, '').toLowerCase();
+          await models.Projects.findOneAndUpdate({ _id: args.id }, updatedProject);
+          // update Dataset question & answers
+          await models.DataSet.updateMany({
+            'metadata.source': projectSlugName,
+          }, {
+            $set: {
+              'metadata.source': updatedProject.name.replace(/\s/g, '').toLowerCase(),
+              availableAnswers: updatedProject.answers,
+            },
+          });
+          // update Dataset users's answers
+          await Promise.map(project.answers, async (answer, index) => {
+            await models.DataSet.updateMany({
+              'usersAnswers.answers': answer.text,
+            }, {
+              $set: {
+                'usersAnswers.$.answers': updatedProject.answers[index].text,
+              },
+            });
+          });
 
-          // update question and answers dataset
-
-          return project;
+          return updatedProject;
         } catch (error) {
           return error;
         }

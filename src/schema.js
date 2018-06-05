@@ -177,6 +177,7 @@ export default `
     Me: User
     Messages: [Message]
     Message(name: String, id: ID): Message
+    Project(id: ID!): Project
     User(id: ID!): User
     Users(limit: Int): [User]
     WakeUpUsers(lastAnswers: String): [User]
