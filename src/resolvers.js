@@ -393,6 +393,7 @@ export default {
         'activity.lastAnswersAt': new Date(),
         $inc: {
           'activity.numAnswers': 1,
+          'activity.slotNumAnswers': 1,
         },
       }, {
         new: true,
