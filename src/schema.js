@@ -144,12 +144,14 @@ export default `
   type UserActivity {
     lastAnswersAt: String
     numAnswers: Int
+    slotNumAnswers: Int
     wakeUpLogs: WakeUpLogs
   }
 
   input UserActivityInput {
     lastAnswersAt: String
     numAnswers: Int
+    slotNumAnswers: Int
     wakeUpLogs: WakeUpLogsInput
   }
 

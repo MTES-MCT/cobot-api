@@ -19,6 +19,7 @@ const usersSchema = mongoose.Schema({
   }],
   activity: {
     lastAnswersAt: Date,
+    slotNumAnswers: { type: Number, default: 0 },
     numAnswers: { type: Number, default: 0 },
     wakeUpLogs: {
       at: Date,
