@@ -296,9 +296,8 @@ export default {
     },
 
     updateUserActivity: async (parent, args, { models, req }) => {
-      const users = await checkRoleAndResolve(
+      const users = await checkAuthAndResolve(
         req,
-        AUTH_SUPERADMIN,
         () => models.Users.findByIdAndUpdate(args.id, {
           activity: args.activity,
         }, {
