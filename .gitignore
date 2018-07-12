@@ -1,0 +1,12 @@
+node_modules
+dist
+dump
+assets
+*~
+*#
+.DS_STORE
+.netbeans
+nbproject
+.idea
+.node_history
+.env
