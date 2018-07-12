@@ -1,7 +1,7 @@
 # Co-Construisons - API
 
-Co-Bot API permet de gérer le comportement du chat bot de Co-Construisons dont le code source est disponible ici disponible ici https://github.com/betagouv/co-constuisons-bot.git.
-Cet API est réalisé en NodeJS + GraphQL (base ded donnée MongoDB).
+Co-Bot API permet de gérer le comportement du chat bot de Co-Construisons dont le code source est disponible ici https://github.com/betagouv/co-constuisons-bot.git.
+Cet API est réalisée en NodeJS + GraphQL (base ded donnée MongoDB).
 
 # Préambule
 
@@ -20,7 +20,7 @@ npm install
 ```
 
 3. Configurer les variables d'environnements  
-A la racine du projet créer le fichier ```.env``` et créez les variables suivantes :
+A la racine du projet créez le fichier ```.env``` et créez les variables suivantes :
 
 	| VAR                     | Type           | Commentaire                                                             			|
 	| ----------------------- |----------------| -----------------------------------------------------------------------------|
@@ -34,6 +34,7 @@ A la racine du projet créer le fichier ```.env``` et créez les variables suiva
 	| HOST                    | string         | L'url/ip du serveur d'API                     			                          |
   | PORT                    | string         | Le port du serveur d'API                     			                          |
 
+
 4. Lancer l'API (dev mode)
 
 ```
@@ -41,7 +42,7 @@ npm run dev
 ```
 
 # Note
-Les APIs étant sécurisées via un JSON WEB TOKEN (http bearer), il est impératif de créer un prermier compte dans la collection "user" de la base donnée "conconstruisons". Notez que le mot de passe doit être chiffré (utilisation de [bcrypt](https://www.npmjs.com/package/bcrypt])).
+Les APIs étant sécurisées via un JSON WEB TOKEN (http bearer), il est impératif de créer un prermier compte dans la collection "user" de la base donnée "coconstruisons". Notez que le mot de passe doit être chiffré (utilisation de [bcrypt](https://www.npmjs.com/package/bcrypt])).
 
 Cet utilisateur devra être renseigné dans la configuration du [Bot Co-construisons](https://github.com/betagouv/co-constuisons-bot.git)
 
