@@ -1,7 +1,7 @@
 # Co-Construisons - API
 
 Co-Bot API permet de gérer le comportement du chat bot de Co-Construisons dont le code source est disponible ici https://github.com/betagouv/co-constuisons-bot.git.
-Cet API est réalisée en NodeJS + GraphQL (base ded donnée MongoDB).
+Cet API est réalisée en NodeJS + GraphQL (base de donnée MongoDB).
 
 # Préambule
 
