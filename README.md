@@ -32,7 +32,7 @@ A la racine du projet créez le fichier ```.env``` et créez les variables suiva
 	| DB_NAME                 | string         | Le nom de la base de donnée (coconstruisons)                                 |
 	| JWT_SECRET              | string         | Permet de signer le token                                                    |
 	| HOST                    | string         | L'url/ip du serveur d'API                     			                          |
-  | PORT                    | string         | Le port du serveur d'API                     			                          |
+    | PORT                    | string         | Le port du serveur d'API                     			                          |
 
 
 4. Lancer l'API (dev mode)
@@ -48,3 +48,4 @@ Cet utilisateur devra être renseigné dans la configuration du [Bot Co-construi
 
 # GraphQL
 Documentation : [https://graphql.org](https://graphql.org)
+
