@@ -1,4 +1,5 @@
 import bcrypt from 'bcrypt';
+import fs from 'fs';
 import jwt from 'jsonwebtoken';
 import _ from 'lodash';
 import moment from 'moment';
@@ -29,12 +30,19 @@ export default {
         if (args.source) {
           criteria['metadata.source'] = args.source;
         }
-        const data = await models.DataSet.aggregate()
+        const datas = await models.DataSet.aggregate()
           .match(criteria)
-          .sample(1);
-        const orderedAvailableAnswers = _.sortBy(data[0].availableAnswers, ['order']);
-        data[0].availableAnswers = orderedAvailableAnswers;
-        return data[0];
+          .sample(30);
+
+        const data = _.find(datas, (d) => {
+          if (fs.existsSync(`assets/img/${d.file}`)) {
+            return d;
+          }
+        });
+
+        const orderedAvailableAnswers = _.sortBy(data.availableAnswers, ['order']);
+        data.availableAnswers = orderedAvailableAnswers;
+        return data;
       },
     ),
     DataSetBySource: (parent, args, { models, req }) => checkAuthAndResolve(
