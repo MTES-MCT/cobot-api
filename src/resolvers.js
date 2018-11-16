@@ -32,7 +32,7 @@ export default {
         }
         const datas = await models.DataSet.aggregate()
           .match(criteria)
-          .sample(30);
+          .sample(100);
 
         const data = _.find(datas, (d) => {
           if (fs.existsSync(`assets/img/${d.file}`)) {
