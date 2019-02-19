@@ -2,10 +2,6 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { checkAuthAndResolve } from '../policies';
 import models from '../models';
-<<<<<<< HEAD
-import { cpus } from 'os';
-=======
->>>>>>> 1a0f28b69527dd0ab9091378f5cf74624b9f5efa
 
 const Auth = async (email, password) => {
   try {
