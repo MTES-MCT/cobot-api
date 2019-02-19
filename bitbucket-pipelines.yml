@@ -1,0 +1,29 @@
+# Build configuration for WeIdentity API written in NodeJS and MySql
+# node 6.9.5 - mysql 5.5
+image:
+  name: "wawycam/reseausolidaire"
+  username: $USERNAME
+  password: $PASSWORD
+  email: $EMAIL
+
+pipelines:
+  custom: # Pipelines that are triggered manually
+    manual:
+      - step:
+          script: # Modify the commands below to build your repository.
+            #Deploy
+            - mkdir -p ~/.ssh
+            - cat pipeline_known_hosts >> ~/.ssh/known_hosts
+            - (umask  077 ; echo $SSH_KEY | base64 --decode -i > ~/.ssh/id_rsa)
+            - git remote add preprod "coconstruisons@46.101.22.14:/home/coconstruisons/api"
+            - git push preprod develop
+  branches:
+      develop:
+      - step:
+          script: # Modify the commands below to build your repository.
+            #Deploy
+            - mkdir -p ~/.ssh
+            - cat pipeline_known_hosts >> ~/.ssh/known_hosts
+            - (umask  077 ; echo $SSH_KEY | base64 --decode -i > ~/.ssh/id_rsa)
+            - git remote add preprod "coconstruisons@46.101.22.14:/home/coconstruisons/api"
+            - git push preprod develop

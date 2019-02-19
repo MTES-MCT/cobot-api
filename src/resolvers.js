@@ -1,18 +1,27 @@
 import bcrypt from 'bcrypt';
+<<<<<<< HEAD
 import fs from 'fs';
+=======
+>>>>>>> 1a0f28b69527dd0ab9091378f5cf74624b9f5efa
 import jwt from 'jsonwebtoken';
 import _ from 'lodash';
 import moment from 'moment';
 import Promise from 'bluebird';
 import { PubSub, withFilter } from 'graphql-subscriptions';
 import { checkAuthAndResolve, checkRoleAndResolve } from './policies';
+<<<<<<< HEAD
 import { cpus } from 'os';
+=======
+>>>>>>> 1a0f28b69527dd0ab9091378f5cf74624b9f5efa
 
 const pubsub = new PubSub();
 const CONTRIBUTION_ADDED = 'newContribution';
 
 const AUTH_SUPERADMIN = 100;
+<<<<<<< HEAD
 const ADMIN = 80;
+=======
+>>>>>>> 1a0f28b69527dd0ab9091378f5cf74624b9f5efa
 
 export default {
   Query: {
@@ -32,6 +41,7 @@ export default {
         if (args.source) {
           criteria['metadata.source'] = args.source;
         }
+<<<<<<< HEAD
         const datas = await models.DataSet.aggregate()
           .match(criteria)
           .sample(100);
@@ -45,6 +55,14 @@ export default {
         const orderedAvailableAnswers = _.sortBy(data.availableAnswers, ['order']);
         data.availableAnswers = orderedAvailableAnswers;
         return data;
+=======
+        const data = await models.DataSet.aggregate()
+          .match(criteria)
+          .sample(1);
+        const orderedAvailableAnswers = _.sortBy(data[0].availableAnswers, ['order']);
+        data[0].availableAnswers = orderedAvailableAnswers;
+        return data[0];
+>>>>>>> 1a0f28b69527dd0ab9091378f5cf74624b9f5efa
       },
     ),
     DataSetBySource: (parent, args, { models, req }) => checkAuthAndResolve(
@@ -492,20 +510,28 @@ export default {
           owner: user.id,
         };
         try {
+<<<<<<< HEAD
           const newProject = await models.Projects.create(project);
           return newProject;
+=======
+          await models.Projects.create(project);
+          return project;
+>>>>>>> 1a0f28b69527dd0ab9091378f5cf74624b9f5efa
         } catch (error) {
           return error;
         }
       },
     ),
 
+<<<<<<< HEAD
     deleteProject: (parent, args, { models, req }) => checkRoleAndResolve(
       req,
       ADMIN,
       () => models.Projects.remove({ _id: args.id }),
     ),
 
+=======
+>>>>>>> 1a0f28b69527dd0ab9091378f5cf74624b9f5efa
     updateProject: async (parent, args, { models, req }) => checkAuthAndResolve(
       req,
       async (user) => {
@@ -525,7 +551,10 @@ export default {
           }, {
             $set: {
               'metadata.source': updatedProject.name.replace(/\s/g, '').toLowerCase(),
+<<<<<<< HEAD
               question: updatedProject.question,
+=======
+>>>>>>> 1a0f28b69527dd0ab9091378f5cf74624b9f5efa
               availableAnswers: updatedProject.answers,
             },
           });
