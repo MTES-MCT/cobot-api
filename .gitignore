@@ -3,6 +3,7 @@ dist
 dump
 assets
 uploads
+build/config.gypi
 *~
 *#
 .DS_STORE
