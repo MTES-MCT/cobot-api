@@ -6,11 +6,13 @@ import moment from 'moment';
 import Promise from 'bluebird';
 import { PubSub, withFilter } from 'graphql-subscriptions';
 import { checkAuthAndResolve, checkRoleAndResolve } from './policies';
+import { cpus } from 'os';
 
 const pubsub = new PubSub();
 const CONTRIBUTION_ADDED = 'newContribution';
 
 const AUTH_SUPERADMIN = 100;
+const ADMIN = 80;
 
 export default {
   Query: {
@@ -490,12 +492,18 @@ export default {
           owner: user.id,
         };
         try {
-          await models.Projects.create(project);
-          return project;
+          const newProject = await models.Projects.create(project);
+          return newProject;
         } catch (error) {
           return error;
         }
       },
+    ),
+
+    deleteProject: (parent, args, { models, req }) => checkRoleAndResolve(
+      req,
+      ADMIN,
+      () => models.Projects.remove({ _id: args.id }),
     ),
 
     updateProject: async (parent, args, { models, req }) => checkAuthAndResolve(
@@ -517,6 +525,7 @@ export default {
           }, {
             $set: {
               'metadata.source': updatedProject.name.replace(/\s/g, '').toLowerCase(),
+              question: updatedProject.question,
               availableAnswers: updatedProject.answers,
             },
           });

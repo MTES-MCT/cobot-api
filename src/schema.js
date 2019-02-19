@@ -196,6 +196,7 @@ export default `
     updateMessage(id: ID!, message: [MessageInput], attachments: [AttachmentInput], actions: [ActionInput]): ID!
     deleteMessage(id: ID!): String
     createProject(name: String, question: String, answers: [AnswerInput]): Project!
+    deleteProject(id: ID!): String
     updateProject(id: ID!, name: String, question: String, answers: [AnswerInput]): Project!
   }
 

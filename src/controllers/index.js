@@ -2,6 +2,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { checkAuthAndResolve } from '../policies';
 import models from '../models';
+import { cpus } from 'os';
 
 const Auth = async (email, password) => {
   try {
@@ -44,7 +45,32 @@ const User = async (context) => {
   }
 };
 
+const DataSet = async (context) => {
+  const { projectName, question, answers } = context.body;
+  try {
+    return checkAuthAndResolve(context, async () => {
+      const dataset = {
+        file: context.file.filename,
+        question,
+        availableAnswers: answers,
+        metadata: {
+          source: projectName.replace(/\s/g, '').toLowerCase(),
+        },
+      };
+      try {
+        const newDataSet = await models.DataSet.create(dataset);
+        return newDataSet;
+      } catch (error) {
+        throw new Error(error);
+      }
+    });
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
 module.exports = {
   Auth,
   User,
+  DataSet,
 };

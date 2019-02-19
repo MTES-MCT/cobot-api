@@ -2,6 +2,7 @@ node_modules
 dist
 dump
 assets
+uploads
 *~
 *#
 .DS_STORE
