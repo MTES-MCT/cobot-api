@@ -54,13 +54,17 @@ const User = async (context) => {
 };
 
 const DataSet = async (context) => {
-  const { projectName, question, answers } = context.body;
+  const {
+    projectName,
+    question,
+    answers,
+  } = context.body;
   try {
     return checkAuthAndResolve(context, async () => {
       const dataset = {
         file: context.file.filename,
         question,
-        availableAnswers: answers,
+        availableAnswers: JSON.parse(answers),
         metadata: {
           source: projectName.replace(/\s/g, '').toLowerCase(),
         },
@@ -77,6 +81,14 @@ const DataSet = async (context) => {
   }
 };
 
+const moveFile = (source, dest, file, callback) => {
+  const uploadeFolder = path.join(__dirname, source);
+  const folderName = path.join(__dirname, dest);
+  mv(`${uploadeFolder}/${file}`, `${folderName}/${file}`, { mkdirp: true }, (err) => {
+    return callback(err);
+  });
+};
+
 const DataSetFromDropbox = async (context, callback) => {
   const files = [];
   const fileName = uuid();
@@ -86,9 +98,17 @@ const DataSetFromDropbox = async (context, callback) => {
   };
 
   const zip = await axios.get(context.body.url, headers);
-  const uploadPath = path.join(__dirname, '../../uploads/');
+  const uploadPath = path.join(__dirname, `../../uploads/${context.body.projectId}`);
   const filepathZip = path.join(uploadPath, fileNameZip);
   const filepath = path.join(uploadPath, fileName);
+
+  try {
+    if (!fs.existsSync(uploadPath)) {
+      fs.mkdirSync(uploadPath);
+    }
+  } catch (err) {
+    if (err) { throw err; }
+  }
 
   fs.writeFile(filepathZip, zip.data, (err) => {
     if (err) { throw err; }
@@ -125,6 +145,7 @@ const DataSetFromDropbox = async (context, callback) => {
 module.exports = {
   Auth,
   User,
+  moveFile,
   DataSet,
   DataSetFromDropbox,
 };

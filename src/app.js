@@ -79,15 +79,19 @@ app.use(
 );
 
 app.post('/upload', upload.single('file'), async (req, res) => {
-  const newDataset = await controllers.DataSet(req);
-  return res.status(201).send(newDataset);
+  controllers.moveFile('../../uploads/', `../../uploads/${req.body.projectId}`, req.file.filename, async (err) => {
+    if (err) throw err;
+    const newDataset = await controllers.DataSet(req);
+    return res.status(201).send(newDataset);
+  });
 });
 
-app.post('/dropbox', async (req, res) => {
+app.post('/dropbox', (req, res) => {
   if (req.body.url && req.body.url.indexOf('dropbox') > -1) {
     controllers.DataSetFromDropbox(req, (files => res.status(201).send(files)));
+  } else {
+    return res.status(400).send();
   }
-  return res.status(400).send();
 });
 
 app.use(
