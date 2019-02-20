@@ -1,5 +1,14 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import uuid from 'uuid/v1';
+import eachSeries from 'async/eachSeries';
+import rimraf from 'rimraf';
+import axios from 'axios';
+import unzipper from 'unzipper';
+import mv from 'mv';
+import fs from 'fs';
+import path from 'path';
+
 import { checkAuthAndResolve } from '../policies';
 import models from '../models';
 
@@ -68,8 +77,54 @@ const DataSet = async (context) => {
   }
 };
 
+const DataSetFromDropbox = async (context, callback) => {
+  const files = [];
+  const fileName = uuid();
+  const fileNameZip = `${fileName}.zip`;
+  const headers = {
+    responseType: 'arraybuffer',
+  };
+
+  const zip = await axios.get(context.body.url, headers);
+  const uploadPath = path.join(__dirname, '../../uploads/');
+  const filepathZip = path.join(uploadPath, fileNameZip);
+  const filepath = path.join(uploadPath, fileName);
+
+  fs.writeFile(filepathZip, zip.data, (err) => {
+    if (err) { throw err; }
+    const zipper = fs.createReadStream(filepathZip)
+      .pipe(unzipper.Extract({ path: filepath }));
+
+    zipper.on('close', () => {
+      fs.readdir(filepath, (readDirErr, items) => {
+        if (readDirErr) { throw readDirErr; }
+        eachSeries(items, (item, cb) => {
+          mv(`${filepath}/${item}`, `${uploadPath}/${item}`, { mkdirp: true }, async (mvErr) => {
+            if (mvErr) throw mvErr;
+            files.push(item);
+            context.file = {
+              filename: item,
+            };
+            await DataSet(context);
+            return cb();
+          });
+        }, (seriesErr) => {
+          if (seriesErr) { throw seriesErr; }
+          rimraf.sync(filepath);
+          rimraf.sync(filepathZip);
+          return callback(files);
+        });
+      });
+    });
+    zipper.on('error', (error) => {
+      throw error;
+    });
+  });
+};
+
 module.exports = {
   Auth,
   User,
   DataSet,
+  DataSetFromDropbox,
 };

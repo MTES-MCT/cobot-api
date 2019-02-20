@@ -5,7 +5,6 @@ import { execute, subscribe } from 'graphql';
 import { graphiqlExpress, graphqlExpress } from 'graphql-server-express';
 import { SubscriptionServer } from 'subscriptions-transport-ws';
 import { makeExecutableSchema } from 'graphql-tools';
-import mv from 'mv';
 import multer from 'multer';
 import cors from 'cors';
 
@@ -69,6 +68,7 @@ app.use(express.static('uploads'));
 
 app.use(bodyParser.json());
 app.use('/auth', bodyParser.json(), router);
+app.use(bodyParser.raw({ inflate: true, type: 'image/png' }));
 
 app.use(
   '/graphiql',
@@ -81,6 +81,13 @@ app.use(
 app.post('/upload', upload.single('file'), async (req, res) => {
   const newDataset = await controllers.DataSet(req);
   return res.status(201).send(newDataset);
+});
+
+app.post('/dropbox', async (req, res) => {
+  if (req.body.url && req.body.url.indexOf('dropbox') > -1) {
+    controllers.DataSetFromDropbox(req, (files => res.status(201).send(files)));
+  }
+  return res.status(400).send();
 });
 
 app.use(
