@@ -93,7 +93,6 @@ export default {
             },
           },
         ]);
-
         const contributions = _.flatMap(data, 'usersAnswers');
         const contributionsGroup = _.groupBy(contributions, contribution => moment(contribution.createdAt).format('YYYY-MM-DD'));
         const contributionsGraph = [];
@@ -122,10 +121,16 @@ export default {
       req,
       async (token) => {
         const user = await models.Users.findById(token.id);
-        const projects = await models.Projects.find({
-          owner: user.id,
+        const userProjectDetails = [];
+        await Promise.map(user.projects, async (project) => {
+          const projectDetails = await models.Projects.findById(project.id);
+          userProjectDetails.push({
+            id: project.id,
+            name: projectDetails.name,
+            role: project.role,
+          });
         });
-        user.projects = projects;
+        user.projects = userProjectDetails;
         return user;
       },
     ),

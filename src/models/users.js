@@ -31,6 +31,7 @@ const usersSchema = mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Projects',
     },
+    name: String,
     role: {
       type: Number,
       validate: {

@@ -143,6 +143,7 @@ export default `
  
   type UserProjects {
     id: ID!
+    name: String
     role: Int
   }
 
