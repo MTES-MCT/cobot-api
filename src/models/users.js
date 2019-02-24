@@ -26,6 +26,19 @@ const usersSchema = mongoose.Schema({
       channel: String,
     },
   },
+  projects: [{
+    id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Projects',
+    },
+    role: {
+      type: Number,
+      validate: {
+        validator: v => [1, 80, 100].indexOf(v) > -1,
+        message: '{VALUE} should be 1, 80 or 100',
+      },
+    },
+  }],
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 }, {

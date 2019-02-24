@@ -328,6 +328,23 @@ export default {
       return users;
     },
 
+    updateUserProjects: async (parent, args, { models, req }) => {
+      const user = await checkAuthAndResolve(
+        req,
+        () => models.Users.findByIdAndUpdate(args.id, {
+          $push: {
+            projects: {
+              id: args.projects.id,
+              role: args.projects.role,
+            },
+          },
+        }, {
+          new: true,
+        }),
+      );
+      return user;
+    },
+
     authorization: async (parent, { email, password }, { models }) => {
       const user = await models.Users.findOne({ email });
       if (!user) {
