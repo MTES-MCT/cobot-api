@@ -82,14 +82,24 @@ export default {
       async () => {
         const output = {
           datas: 0,
+          contributors: 0,
           contributionTotal: 0,
           achievement: 0,
           contributionsGraph: [],
         };
+
+        const contributors = await models.Users.aggregate([
+          {
+            $match: {
+              'projects.id': models.toObjectId(args.id),
+            },
+          },
+        ]);
+        
         const data = await models.DataSet.aggregate([
           {
             $match: {
-              'metadata.source': args.source,
+              'metadata.id': models.toObjectId(args.id),
             },
           },
         ]);
@@ -111,6 +121,7 @@ export default {
         });
 
         output.datas = data.length;
+        output.contributors = contributors.length;
         output.contributions = contributions.length;
         output.achievement = 100 - Math.ceil((datasWithoutContribution.length * 100) / output.datas);
         output.contributionsGraph = contributionsGraph;
@@ -573,7 +584,7 @@ export default {
     contributionAdded: {
       subscribe: withFilter(
         () => pubsub.asyncIterator(CONTRIBUTION_ADDED),
-        (payload, variables) => payload.contributionAdded.source === variables.source,
+        (payload, variables) => payload.contributionAdded.id === variables.id,
       ),
     },
   },

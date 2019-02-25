@@ -123,6 +123,7 @@ export default `
 
   type Statistics {
     datas: Int
+    contributors: Int
     contributions: Int
     achievement: Int
     contributionsGraph: [ContributionStats]
@@ -184,9 +185,9 @@ export default `
 
   type Query {
     Actions: [Action]
-    DataSet(source: String): DataSet
+    DataSet(id: ID!): DataSet
     DataSetBySource(source: String!): [DataSet]
-    DataSetStats(source: String!): Statistics
+    DataSetStats(id: ID!): Statistics
     Me: User
     Messages: [Message]
     Message(name: String, id: ID): Message
@@ -213,6 +214,6 @@ export default `
   }
 
   type Subscription {
-    contributionAdded(source: String!): NewContribution
+    contributionAdded(id: ID!): NewContribution
   }
 `;
