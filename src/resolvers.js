@@ -28,8 +28,8 @@ export default {
             $ne: models.toObjectId(user.id),
           },
         };
-        if (args.source) {
-          criteria['metadata.source'] = args.source;
+        if (args.id) {
+          criteria['metadata.id'] = models.toObjectId(args.id);
         }
         const datas = await models.DataSet.aggregate()
           .match(criteria)
@@ -52,7 +52,7 @@ export default {
         const data = await models.DataSet.aggregate([
           {
             $match: {
-              'metadata.source': args.source,
+              'metadata.id': models.toObjectId(args.id),
             },
           },
           {

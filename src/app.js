@@ -5,6 +5,7 @@ import { execute, subscribe } from 'graphql';
 import { graphiqlExpress, graphqlExpress } from 'graphql-server-express';
 import { SubscriptionServer } from 'subscriptions-transport-ws';
 import { makeExecutableSchema } from 'graphql-tools';
+import path from 'path';
 import multer from 'multer';
 import cors from 'cors';
 
@@ -17,7 +18,10 @@ import resolvers from './resolvers';
 import models from './models';
 import controllers from './controllers';
 
-const upload = multer({ dest: 'uploads/' });
+const upload = multer({
+  dest: 'uploads/',
+});
+
 const schema = makeExecutableSchema({
   typeDefs,
   resolvers,
@@ -63,8 +67,8 @@ app.use(cors({
   optionsSuccessStatus: 204,
 }));
 
-app.use(express.static('assets'));
-app.use(express.static('uploads'));
+app.use('/img', express.static(path.join(__dirname, '../uploads')));
+// app.use(express.static('assets'));
 
 app.use(bodyParser.json());
 app.use('/auth', bodyParser.json(), router);
