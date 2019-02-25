@@ -538,13 +538,14 @@ export default {
         };
         try {
           const project = await models.Projects.findOne({ _id: args.id });
-          const projectSlugName = project.name.replace(/\s/g, '').toLowerCase();
+          // const projectSlugName = project.name.replace(/\s/g, '').toLowerCase();
           await models.Projects.findOneAndUpdate({ _id: args.id }, updatedProject);
           // update Dataset question & answers
           await models.DataSet.updateMany({
-            'metadata.source': projectSlugName,
+            'metadata.source': args.id, // projectSlugName,
           }, {
             $set: {
+              'metadata.id': args.id,
               'metadata.source': updatedProject.name.replace(/\s/g, '').toLowerCase(),
               question: updatedProject.question,
               availableAnswers: updatedProject.answers,

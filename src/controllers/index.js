@@ -55,6 +55,7 @@ const User = async (context) => {
 
 const DataSet = async (context) => {
   const {
+    projectId,
     projectName,
     question,
     answers,
@@ -66,6 +67,7 @@ const DataSet = async (context) => {
         question,
         availableAnswers: JSON.parse(answers),
         metadata: {
+          id: projectId,
           source: projectName.replace(/\s/g, '').toLowerCase(),
         },
       };

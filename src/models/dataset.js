@@ -5,7 +5,7 @@ const datasetSchema = mongoose.Schema({
   question: String,
   metadata: {
     source: String,
-    id: Number,
+    id: { type: mongoose.Schema.Types.ObjectId, ref: 'Projects' },
   },
   availableAnswers: [{
     text: String,
