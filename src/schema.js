@@ -192,6 +192,7 @@ export default `
     Messages: [Message]
     Message(name: String, id: ID): Message
     Project(id: ID!): Project
+    ProjectContributors(id: ID!): [User]
     User(id: ID!): User
     Users(limit: Int): [User]
     WakeUpUsers(lastAnswers: String): [User]
@@ -211,6 +212,7 @@ export default `
     createProject(name: String, question: String, answers: [AnswerInput]): Project!
     deleteProject(id: ID!): String
     updateProject(id: ID!, name: String, question: String, answers: [AnswerInput]): Project!
+    deleteProjectContributor(id: ID!, email: String): [User]
   }
 
   type Subscription {

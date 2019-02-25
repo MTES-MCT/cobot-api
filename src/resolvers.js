@@ -95,7 +95,7 @@ export default {
             },
           },
         ]);
-        
+
         const data = await models.DataSet.aggregate([
           {
             $match: {
@@ -220,6 +220,19 @@ export default {
           owner: user.id,
         });
         return project;
+      },
+    ),
+    ProjectContributors: (parent, args, { models, req }) => checkAuthAndResolve(
+      req,
+      async () => {
+        const contributors = await models.Users.aggregate([
+          {
+            $match: {
+              'projects.id': models.toObjectId(args.id),
+            },
+          },
+        ]);
+        return contributors;
       },
     ),
     User: (parent, args, { models, req }) => checkAuthAndResolve(
@@ -536,6 +549,26 @@ export default {
       req,
       ADMIN,
       () => models.Projects.remove({ _id: args.id }),
+    ),
+
+    deleteProjectContributor: (parent, args, { models, req }) => checkRoleAndResolve(
+      req,
+      ADMIN,
+      async () => {
+        const contributors = await models.Users.findOne({ email: args.email });
+        const projects = _.filter(contributors.projects, (project) => {
+          return project.id.toString() !== args.id;
+        });
+        await models.Users.findOneAndUpdate({ _id: contributors.id }, { projects });
+        const newContributors = await models.Users.aggregate([
+          {
+            $match: {
+              'projects.id': models.toObjectId(args.id),
+            },
+          },
+        ]);
+        return newContributors;
+      },
     ),
 
     updateProject: async (parent, args, { models, req }) => checkAuthAndResolve(
