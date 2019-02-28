@@ -33,7 +33,10 @@ const Auth = async (email, password) => {
       },
     );
     await models.Users.findByIdAndUpdate(user._id, { lastConnection: new Date() });
-    return token;
+    return {
+      token,
+      user,
+    };
   } catch (error) {
     throw new Error(error);
   }

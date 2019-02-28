@@ -40,7 +40,7 @@ const usersSchema = mongoose.Schema({
       },
     },
   }],
-  lastConnection: { type: Date, default: Date.now },
+  lastConnection: { type: Date, default: null },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 }, {

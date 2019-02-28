@@ -186,6 +186,7 @@ export default `
 
   type Query {
     Actions: [Action]
+    AutoLogin(email: String!): User
     DataSet(id: ID!): DataSet
     DataSetBySource(id: ID!): [DataSet]
     DataSetStats(id: ID!): Statistics
@@ -202,6 +203,7 @@ export default `
   type Mutation {
     createUser(name: String, email: String, password: String!, role: Int!, bots: BotInput): User!
     updateUser(name: String, email: String, password: String, role: Int, bots: BotInput, activity: UserActivityInput, projects: [UserProjectsInput]): User!
+    updateUserPassword(id: ID!, password: String!): User!
     updateUserReminder(reminder: String!): User!
     updateUserActivity(id: ID!, activity: UserActivityInput!): User!
     updateUserProjects(id: ID!, projects: UserProjectsInput!): User!

@@ -128,6 +128,17 @@ export default {
         return output;
       },
     ),
+    AutoLogin: async (parent, args, { models }) => {
+      const user = await models.Users.findOne({ email: args.email });
+      if (user) {
+        return {
+          id: user._id,
+          email: user.email,
+          lastConnection: user.lastConnection,
+        };
+      }
+      return null;
+    },
     Me: (parent, args, { models, req }) => checkAuthAndResolve(
       req,
       async (token) => {
@@ -331,6 +342,14 @@ export default {
       }
 
       return updateUser;
+    },
+
+    updateUserPassword: async (parent, args, { models }) => {
+      const password = await bcrypt.hash(args.password, 12);
+      const users = await models.Users.findByIdAndUpdate(args.id, {
+        password,
+      });
+      return users;
     },
 
     updateUserActivity: async (parent, args, { models, req }) => {

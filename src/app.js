@@ -38,9 +38,9 @@ const router = express.Router();
 // Front-End authentication mecanism require a response in header.
 router.post('/login', async (req, res) => {
   try {
-    const token = await controllers.Auth(req.body.email, req.body.password);
-    res.set('Authorization', token);
-    res.sendStatus(200);
+    const auth = await controllers.Auth(req.body.email, req.body.password);
+    res.set('Authorization', auth.token);
+    res.send(200, { user: auth.user });
   } catch (error) {
     Logger.log('error', error);
     res.sendStatus(401);
