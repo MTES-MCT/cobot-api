@@ -373,7 +373,19 @@ export default {
       );
       return user;
     },
-
+    updateUserProjectsRole: async (parent, args, { models, req }) => {
+      const user = await checkAuthAndResolve(
+        req,
+        () => models.Users.findOneAndUpdate({ email: args.email, 'projects.id': models.toObjectId(args.projects.id) }, {
+          $set: {
+            'projects.$': args.projects,
+          },
+        }, {
+          new: true,
+        }),
+      );
+      return user;
+    },
     authorization: async (parent, { email, password }, { models }) => {
       const user = await models.Users.findOne({ email });
       if (!user) {
@@ -549,6 +561,40 @@ export default {
       req,
       ADMIN,
       () => models.Projects.remove({ _id: args.id }),
+    ),
+
+    createProjectContributor: (parent, args, { models, req }) => checkRoleAndResolve(
+      req,
+      ADMIN,
+      async () => {
+        const contributors = await models.Users.findOne({ email: args.email });
+        if (contributors) {
+          const newContributor = await models.Users.findByIdAndUpdate(contributors.id, {
+            $push: {
+              projects: {
+                id: args.id,
+                role: args.role,
+              },
+            },
+          }, {
+            new: true,
+          });
+          return newContributor;
+        }
+        try {
+          const newContributor = await models.Users.create({
+            email: args.email,
+            password: await bcrypt.hash('a&Hau"7&8%K&3wf_', 12),
+            projects: [{
+              id: args.id,
+              role: args.role,
+            }],
+          });
+          return newContributor;
+        } catch (error) {
+          return error;
+        }
+      },
     ),
 
     deleteProjectContributor: (parent, args, { models, req }) => checkRoleAndResolve(

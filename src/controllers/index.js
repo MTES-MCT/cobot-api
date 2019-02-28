@@ -32,6 +32,7 @@ const Auth = async (email, password) => {
         expiresIn: '1d',
       },
     );
+    await models.Users.findByIdAndUpdate(user._id, { lastConnection: new Date() });
     return token;
   } catch (error) {
     throw new Error(error);

@@ -138,6 +138,7 @@ export default `
     token: String
     reminder: String
     bots: [Bot]
+    lastConnection: String
     activity: UserActivity
     projects: [UserProjects]
   }
@@ -204,6 +205,7 @@ export default `
     updateUserReminder(reminder: String!): User!
     updateUserActivity(id: ID!, activity: UserActivityInput!): User!
     updateUserProjects(id: ID!, projects: UserProjectsInput!): User!
+    updateUserProjectsRole(email: String!, projects: UserProjectsInput!): User!
     authorization(email: String!, password: String!): String!
     loginByBot(channel: String!, channelUid: String!): User!
     dataSetAnswers(id: ID!, answer: String!): User!
@@ -212,6 +214,7 @@ export default `
     createProject(name: String, question: String, answers: [AnswerInput]): Project!
     deleteProject(id: ID!): String
     updateProject(id: ID!, name: String, question: String, answers: [AnswerInput]): Project!
+    createProjectContributor(id: ID!, email: String, role: Int): User
     deleteProjectContributor(id: ID!, email: String): [User]
   }
 
