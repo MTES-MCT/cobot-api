@@ -36,7 +36,7 @@ export default {
           .sample(100);
 
         const data = _.find(datas, (d) => {
-          if (fs.existsSync(`assets/img/${d.file}`)) {
+          if (fs.existsSync(`uploads/${args.id}/${d.file}`)) {
             return d;
           }
         });
@@ -467,7 +467,7 @@ export default {
           {
             contributionAdded:
               {
-                source: answer.metadata.source,
+                id: answer.metadata.id,
                 createdAt: new Date(),
               },
           },

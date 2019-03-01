@@ -51,7 +51,12 @@ router.post('/login', async (req, res) => {
 router.get('/user', async (req, res) => {
   try {
     const user = await controllers.User(req);
-    res.json({ email: user.email, name: user.name, role: user.role });
+    res.json({
+      email: user.email,
+      name: user.name,
+      role: user.role,
+      projects: user.projects,
+    });
   } catch (error) {
     Logger.log('error', error);
     res.sendStatus(401);
