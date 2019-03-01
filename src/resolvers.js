@@ -36,7 +36,8 @@ export default {
           .sample(100);
 
         const data = _.find(datas, (d) => {
-          if (fs.existsSync(`uploads/${args.id}/${d.file}`)) {
+          const path = (process.env.NODE_ENV === 'development') ? 'uploads' : '../uploads';
+          if (fs.existsSync(`${path}/${args.id}/${d.file}`)) {
             return d;
           }
         });

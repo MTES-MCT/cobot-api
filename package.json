@@ -48,7 +48,8 @@
     "dev": "nodemon -L ./src/app.js --exec \"node -r dotenv/config -r babel-register\"",
     "test": "mocha --require babel-polyfill --require babel-register",
     "lint": "node ./node_modules/eslint/bin/eslint . --max-warnings=0 && echo '✔  Your code looks good.'",
-    "build": "./node_modules/.bin/babel src -d dist"
+    "build": "./node_modules/.bin/babel src -d dist",
+    "deploy": "npm run build && rsync -avz --exclude 'node_modules' --exclude 'uploads' ./ coconstruisons@91.121.77.104:/home/coconstruisons/api"
   },
   "main": "app.js",
   "repository": {

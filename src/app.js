@@ -19,7 +19,7 @@ import models from './models';
 import controllers from './controllers';
 
 const upload = multer({
-  dest: 'uploads/',
+  dest: (process.env.NODE_ENV === 'development') ? 'uploads/' : '../uploads/',
 });
 
 const schema = makeExecutableSchema({
