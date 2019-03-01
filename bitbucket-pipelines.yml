@@ -1,7 +1,7 @@
 # Build configuration for WeIdentity API written in NodeJS and MySql
 # node 6.9.5 - mysql 5.5
 image:
-  name: "wawycam/reseausolidaire"
+  name: "wawycam/adie"
   username: $USERNAME
   password: $PASSWORD
   email: $EMAIL
