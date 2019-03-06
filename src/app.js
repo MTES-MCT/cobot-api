@@ -52,6 +52,7 @@ router.get('/user', async (req, res) => {
   try {
     const user = await controllers.User(req);
     res.json({
+      id: user._id,
       email: user.email,
       name: user.name,
       role: user.role,

@@ -683,7 +683,9 @@ export default {
     contributionAdded: {
       subscribe: withFilter(
         () => pubsub.asyncIterator(CONTRIBUTION_ADDED),
-        (payload, variables) => payload.contributionAdded.id === variables.id,
+        (payload, variables) => {
+          return payload.contributionAdded.id.toString() === variables.id.toString();
+        },
       ),
     },
   },
