@@ -224,18 +224,19 @@ export default {
         return message;
       },
     ),
-    Project: (parent, args, { models, req }) => checkAuthAndResolve(
+    Project: (parent, args, { models, req }) => checkRoleAndResolve(
       req,
-      async (user) => {
+      ADMIN,
+      async () => {
         const project = await models.Projects.findOne({
-          _id: args.id,
-          owner: user.id,
+          _id: models.toObjectId(args.id),
         });
         return project;
       },
     ),
-    ProjectContributors: (parent, args, { models, req }) => checkAuthAndResolve(
+    ProjectContributors: (parent, args, { models, req }) => checkRoleAndResolve(
       req,
+      ADMIN,
       async () => {
         const contributors = await models.Users.aggregate([
           {
