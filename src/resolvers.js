@@ -1,5 +1,7 @@
+/* eslint-disable no-underscore-dangle */
 import bcrypt from 'bcrypt';
 import fs from 'fs';
+import path from 'path';
 import jwt from 'jsonwebtoken';
 import _ from 'lodash';
 import moment from 'moment';
@@ -28,16 +30,20 @@ export default {
             $ne: models.toObjectId(user.id),
           },
         };
+        if (args.projectId) {
+          criteria['metadata.id'] = models.toObjectId(args.projectId);
+        }
         if (args.id) {
-          criteria['metadata.id'] = models.toObjectId(args.id);
+          criteria._id = models.toObjectId(args.id);
         }
         const datas = await models.DataSet.aggregate()
           .match(criteria)
           .sample(100);
 
         const data = _.find(datas, (d) => {
-          const path = (process.env.NODE_ENV === 'development') ? 'uploads' : '../uploads';
-          if (fs.existsSync(`${path}/${args.id}/${d.file}`)) {
+          // const path = (process.env.NODE_ENV === 'development') ? 'uploads' : '../uploads';
+          const filer = path.join(__dirname, '../uploads');
+          if (fs.existsSync(`${filer}/${args.projectId}/${d.file}`)) {
             return d;
           }
         });
