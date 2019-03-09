@@ -8,6 +8,8 @@ import unzipper from 'unzipper';
 import mv from 'mv';
 import fs from 'fs';
 import path from 'path';
+import exif from 'jpeg-exif';
+import dms2dec from 'dms2dec';
 
 import { checkAuthAndResolve } from '../policies';
 import models from '../models';
@@ -57,6 +59,14 @@ const User = async (context) => {
   }
 };
 
+const parseGpsData = (data) => {
+  data[0] = `${data[0]}/1`;
+  data[1] = `${data[1]}/1`;
+  const second = data[2].toString().split('.');
+  data[2] = `${parseInt(second[0], 10)}/${parseInt(second[1], 10)}`;
+  return data.join(',');
+};
+
 const DataSet = async (context) => {
   const {
     projectId,
@@ -73,6 +83,8 @@ const DataSet = async (context) => {
         metadata: {
           id: projectId,
           source: projectName.replace(/\s/g, '').toLowerCase(),
+          geoData: context.metadata.geoData,
+          raw: context.metadata.raw,
         },
       };
       try {
@@ -108,6 +120,11 @@ const DataSetFromDropbox = async (context, callback) => {
   const filepathZip = path.join(uploadPath, fileNameZip);
   const filepath = path.join(uploadPath, fileName);
 
+  context.metadata = {
+    geoData: null,
+    raw: null,
+  };
+
   try {
     if (!fs.existsSync(uploadPath)) {
       fs.mkdirSync(uploadPath);
@@ -125,6 +142,23 @@ const DataSetFromDropbox = async (context, callback) => {
       fs.readdir(filepath, (readDirErr, items) => {
         if (readDirErr) { throw readDirErr; }
         eachSeries(items, (item, cb) => {
+          const metadata = exif.parseSync(`${filepath}/${item}`);
+          if (metadata && metadata.GPSInfo) {
+            const GPSLatitude = parseGpsData(metadata.GPSInfo.GPSLatitude);
+            const { GPSLatitudeRef } = metadata.GPSInfo;
+            const GPSLongitude = parseGpsData(metadata.GPSInfo.GPSLongitude);
+            const { GPSLongitudeRef } = metadata.GPSInfo;
+            const dec = dms2dec(GPSLatitude, GPSLatitudeRef, GPSLongitude, GPSLongitudeRef);
+            context.metadata = {
+              geoData: {
+                location: {
+                  coordinates: dec,
+                  type: 'Point',
+                },
+              },
+              raw: metadata,
+            };
+          }
           mv(`${filepath}/${item}`, `${uploadPath}/${item}`, { mkdirp: true }, async (mvErr) => {
             if (mvErr) throw mvErr;
             files.push(item);

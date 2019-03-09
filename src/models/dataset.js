@@ -6,6 +6,8 @@ const datasetSchema = mongoose.Schema({
   metadata: {
     source: String,
     id: { type: mongoose.Schema.Types.ObjectId, ref: 'Projects' },
+    geoData: {},
+    raw: {},
   },
   availableAnswers: [{
     text: String,
