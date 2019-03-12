@@ -2,6 +2,7 @@
 import fs from 'fs';
 import path from 'path';
 import _ from 'lodash';
+import moment from 'moment';
 import { checkAuthAndResolve, pubsub, CONTRIBUTION_ADDED } from './common';
 
 export const DataSet = (parent, args, { models, req }) => checkAuthAndResolve(
@@ -21,13 +22,14 @@ export const DataSet = (parent, args, { models, req }) => checkAuthAndResolve(
     const datas = await models.DataSet.aggregate()
       .match(criteria)
       .sample(100);
-
     const data = _.find(datas, (d) => {
-      const filer = path.join(__dirname, '../uploads');
+      const uploadPath = (process.env.NODE_ENV === 'development') ? '../../uploads' : '../uploads';
+      const filer = path.join(__dirname, uploadPath);
       if (fs.existsSync(`${filer}/${args.projectId}/${d.file}`)) {
         return d;
       }
     });
+    data.metadata.raw = (data.metadata.raw) ? JSON.stringify(data.metadata.raw) : null;
 
     const orderedAvailableAnswers = _.sortBy(data.availableAnswers, ['order']);
     data.availableAnswers = orderedAvailableAnswers;

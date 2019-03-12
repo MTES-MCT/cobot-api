@@ -44,7 +44,7 @@ npm run dev
 # Note
 Les APIs étant sécurisées via un JSON WEB TOKEN (http bearer), il est impératif de créer un prermier compte dans la collection "user" de la base donnée "coconstruisons". Notez que le mot de passe doit être chiffré (utilisation de [bcrypt](https://www.npmjs.com/package/bcrypt])).
 
-Cet utilisateur devra être renseigné dans la configuration du [Bot Co-construisons](https://github.com/MTES-MCT/co-constuisons-bot.git)
+Cet utilisateur devra être renseigné dans la configuration du [Bot Co-construisons](https://github.com/MTES-MCT/cobot-bot.git)
 
 # GraphQL
 Documentation : [https://graphql.org](https://graphql.org)

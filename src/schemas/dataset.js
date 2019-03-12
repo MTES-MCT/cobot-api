@@ -14,5 +14,6 @@ export default `
     id: String
     source: String
     geoData: GeoData
+    raw: String
   }
 `;
