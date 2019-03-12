@@ -13,8 +13,10 @@ import { attachDirectives } from './directives';
 import config from './config';
 import Logger from './utils/logger';
 
-import typeDefs from './schema';
 import resolvers from './resolvers';
+
+import typeDefs from './schemas';
+
 import models from './models';
 import controllers from './controllers';
 
