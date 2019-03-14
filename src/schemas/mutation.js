@@ -17,5 +17,6 @@ export default `
     updateProject(id: ID!, name: String, question: String, answers: [AnswerInput]): Project!
     createProjectContributor(id: ID!, email: String, role: Int): User
     deleteProjectContributor(id: ID!, email: String): [User]
+    dropbox(url: String, projectId: ID): User
   }
 `;

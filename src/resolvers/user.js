@@ -15,6 +15,8 @@ export const Me = (parent, args, { models, req }) => checkAuthAndResolve(
         id: project.id,
         name: projectDetails.name,
         role: project.role,
+        question: projectDetails.question,
+        answers: projectDetails.answers,
       });
     });
     user.projects = userProjectDetails;

@@ -5,6 +5,11 @@ import _ from 'lodash';
 import moment from 'moment';
 import { checkAuthAndResolve, pubsub, CONTRIBUTION_ADDED } from './common';
 
+const rawFieldToString = (row) => {
+  row.metadata.raw = (row.metadata.raw) ? JSON.stringify(row.metadata.raw) : null;
+  return row;
+};
+
 export const DataSet = (parent, args, { models, req }) => checkAuthAndResolve(
   req,
   async (user) => {
@@ -25,7 +30,7 @@ export const DataSet = (parent, args, { models, req }) => checkAuthAndResolve(
     const datas = await models.DataSet.aggregate()
       .match(criteria)
       .sample(100);
-    const data = _.find(datas, (d) => {
+    let data = _.find(datas, (d) => {
       // const uploadPath = (process.env.NODE_ENV === 'development') ?
       //  '../../uploads' : '../uploads';
       const uploadPath = '../../uploads';
@@ -34,8 +39,7 @@ export const DataSet = (parent, args, { models, req }) => checkAuthAndResolve(
         return d;
       }
     });
-    data.metadata.raw = (data.metadata.raw) ? JSON.stringify(data.metadata.raw) : null;
-
+    data = rawFieldToString(data);
     const orderedAvailableAnswers = _.sortBy(data.availableAnswers, ['order']);
     data.availableAnswers = orderedAvailableAnswers;
     return data;
@@ -70,7 +74,9 @@ export const DataSetBySource = (parent, args, { models, req }) => checkAuthAndRe
         },
       },
     ]).limit(100);
-    return data;
+
+    const dataset = _.map(data, rawFieldToString);
+    return dataset;
   },
 );
 

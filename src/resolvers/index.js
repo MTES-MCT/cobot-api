@@ -27,6 +27,8 @@ import {
   updateProject,
 } from './project';
 
+import { dropbox, uploadProgress } from './upload';
+
 import contributionAdded from './contribution';
 
 export default {
@@ -52,6 +54,8 @@ export default {
   Mutation: {
     createUser,
 
+    dropbox,
+
     updateUser,
     updateUserPassword,
     updateUserActivity,
@@ -75,5 +79,6 @@ export default {
   },
   Subscription: {
     contributionAdded,
+    uploadProgress,
   },
 };

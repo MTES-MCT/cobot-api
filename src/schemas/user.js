@@ -17,6 +17,8 @@ export default `
     id: ID!
     name: String
     role: Int
+    question: String
+    answers: [Answer]
   }
 
   input UserProjectsInput {

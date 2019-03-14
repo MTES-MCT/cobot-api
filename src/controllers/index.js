@@ -10,6 +10,7 @@ import fs from 'fs';
 import path from 'path';
 import exif from 'jpeg-exif';
 import dms2dec from 'dms2dec';
+import prettyBytes from 'pretty-bytes';
 
 import { checkAuthAndResolve } from '../policies';
 import models from '../models';
@@ -111,11 +112,6 @@ const DataSetFromDropbox = async (context, callback) => {
   const files = [];
   const fileName = uuid();
   const fileNameZip = `${fileName}.zip`;
-  const headers = {
-    responseType: 'arraybuffer',
-  };
-
-  const zip = await axios.get(context.body.url, headers);
   const uploadPath = path.join(__dirname, `../../uploads/${context.body.projectId}`);
   const filepathZip = path.join(uploadPath, fileNameZip);
   const filepath = path.join(uploadPath, fileName);
@@ -133,53 +129,77 @@ const DataSetFromDropbox = async (context, callback) => {
     if (err) { throw err; }
   }
 
-  fs.writeFile(filepathZip, zip.data, (err) => {
-    if (err) { throw err; }
-    const zipper = fs.createReadStream(filepathZip)
-      .pipe(unzipper.Extract({ path: filepath }));
+  const zip = fs.createWriteStream(filepathZip);
+  // arraybuffer
+  const options = {
+    responseType: 'stream',
+  };
 
-    zipper.on('close', () => {
-      fs.readdir(filepath, (readDirErr, items) => {
-        if (readDirErr) { throw readDirErr; }
-        eachSeries(items, (item, cb) => {
-          const metadata = exif.parseSync(`${filepath}/${item}`);
-          if (metadata && metadata.GPSInfo) {
-            const GPSLatitude = parseGpsData(metadata.GPSInfo.GPSLatitude);
-            const { GPSLatitudeRef } = metadata.GPSInfo;
-            const GPSLongitude = parseGpsData(metadata.GPSInfo.GPSLongitude);
-            const { GPSLongitudeRef } = metadata.GPSInfo;
-            const dec = dms2dec(GPSLatitude, GPSLatitudeRef, GPSLongitude, GPSLongitudeRef);
-            context.metadata = {
-              geoData: {
-                location: {
-                  coordinates: dec,
-                  type: 'Point',
-                },
-              },
-              raw: metadata,
-            };
-          }
-          mv(`${filepath}/${item}`, `${uploadPath}/${item}`, { mkdirp: true }, async (mvErr) => {
-            if (mvErr) throw mvErr;
-            files.push(item);
-            context.file = {
-              filename: item,
-            };
-            await DataSet(context);
-            return cb();
-          });
-        }, (seriesErr) => {
-          if (seriesErr) { throw seriesErr; }
-          rimraf.sync(filepath);
-          rimraf.sync(filepathZip);
-          return callback(files);
-        });
+  try {
+    // const zip = await axios.get(context.body.url, options);
+    // { responseType: 'stream', adapter: httpAdapter }
+    let downloadedBytes = 0;
+    axios.get(context.body.url, options).then((response) => {
+      const stream = response.data;
+      stream.on('data', (chunk) => {
+        downloadedBytes += chunk.length;
+        console.log(prettyBytes(downloadedBytes));
+        zip.write(Buffer.from(chunk));
+      });
+      stream.on('end', () => {
+        zip.end();
+        // fs.writeFile(filepathZip, zip.data, (err) => {
+        //   if (err) { throw err; }
+        //   const zipper = fs.createReadStream(filepathZip)
+        //     .pipe(unzipper.Extract({ path: filepath }));
+
+        //   zipper.on('close', () => {
+        //     fs.readdir(filepath, (readDirErr, items) => {
+        //       if (readDirErr) { throw readDirErr; }
+        //       eachSeries(items, (item, cb) => {
+        //         const metadata = exif.parseSync(`${filepath}/${item}`);
+        //         if (metadata && metadata.GPSInfo) {
+        //           const GPSLatitude = parseGpsData(metadata.GPSInfo.GPSLatitude);
+        //           const { GPSLatitudeRef } = metadata.GPSInfo;
+        //           const GPSLongitude = parseGpsData(metadata.GPSInfo.GPSLongitude);
+        //           const { GPSLongitudeRef } = metadata.GPSInfo;
+        //           const dec = dms2dec(GPSLatitude, GPSLatitudeRef, GPSLongitude, GPSLongitudeRef);
+        //           context.metadata = {
+        //             geoData: {
+        //               location: {
+        //                 coordinates: dec,
+        //                 type: 'Point',
+        //               },
+        //             },
+        //             raw: metadata,
+        //           };
+        //         }
+        //         mv(`${filepath}/${item}`, `${uploadPath}/${item}`, { mkdirp: true }, async (mvErr) => {
+        //           if (mvErr) throw mvErr;
+        //           files.push(item);
+        //           context.file = {
+        //             filename: item,
+        //           };
+        //           await DataSet(context);
+        //           return cb();
+        //         });
+        //       }, (seriesErr) => {
+        //         if (seriesErr) { throw seriesErr; }
+        //         rimraf.sync(filepath);
+        //         rimraf.sync(filepathZip);
+        //         return callback(files);
+        //       });
+        //     });
+        //   });
+        //   zipper.on('error', (error) => {
+        //     throw error;
+        //   });
+        // });
       });
     });
-    zipper.on('error', (error) => {
-      throw error;
-    });
-  });
+  } catch (error) {
+    throw error;
+  }
 };
 
 module.exports = {

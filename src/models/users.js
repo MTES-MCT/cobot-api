@@ -39,6 +39,15 @@ const usersSchema = mongoose.Schema({
         message: '{VALUE} should be 1, 80 or 100',
       },
     },
+    question: String,
+    answers: [{
+      id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Projects',
+      },
+      text: String,
+      order: Number,
+    }],
   }],
   lastConnection: { type: Date, default: null },
   createdAt: { type: Date, default: Date.now },

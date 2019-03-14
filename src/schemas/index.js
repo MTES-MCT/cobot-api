@@ -11,6 +11,7 @@ import message from './message';
 import project from './project';
 import statistic from './statistic';
 import user from './user';
+import upload from './upload';
 import wakeUp from './wakeUp';
 
 import query from './query';
@@ -30,6 +31,7 @@ const schema = `
   ${project}
   ${statistic}
   ${user}
+  ${upload}
   ${wakeUp}
   ${query}
   ${mutation}

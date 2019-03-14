@@ -49,7 +49,7 @@ const checkRoleAndResolve = (
     });
   }
   if (role && role >= expectedRole) {
-    return controller.apply(this, params);
+    return controller.apply(this, [decoded]);
   }
   Logger.log('error', 'A user try to access a method without enough right');
   throw new AuthorizationError({
