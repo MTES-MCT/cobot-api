@@ -2,7 +2,7 @@ export default `
   type Query {
     Actions: [Action]
     AutoLogin(email: String!): User
-    DataSet(projectId: ID!, id: ID): DataSet
+    DataSet(projectId: ID!, id: ID, notAnswered: Boolean): DataSet
     DataSetBySource(id: ID!): [DataSet]
     DataSetStats(id: ID!): Statistics
     Me: User

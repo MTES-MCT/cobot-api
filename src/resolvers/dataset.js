@@ -8,11 +8,14 @@ import { checkAuthAndResolve, pubsub, CONTRIBUTION_ADDED } from './common';
 export const DataSet = (parent, args, { models, req }) => checkAuthAndResolve(
   req,
   async (user) => {
-    const criteria = {
-      'usersAnswers.userId': {
-        $ne: models.toObjectId(user.id),
-      },
-    };
+    let criteria = {};
+    if (args.notAnswered) {
+      criteria = {
+        'usersAnswers.userId': {
+          $ne: models.toObjectId(user.id),
+        },
+      };
+    }
     if (args.projectId) {
       criteria['metadata.id'] = models.toObjectId(args.projectId);
     }
@@ -23,7 +26,9 @@ export const DataSet = (parent, args, { models, req }) => checkAuthAndResolve(
       .match(criteria)
       .sample(100);
     const data = _.find(datas, (d) => {
-      const uploadPath = (process.env.NODE_ENV === 'development') ? '../../uploads' : '../uploads';
+      // const uploadPath = (process.env.NODE_ENV === 'development') ?
+      //  '../../uploads' : '../uploads';
+      const uploadPath = '../../uploads';
       const filer = path.join(__dirname, uploadPath);
       if (fs.existsSync(`${filer}/${args.projectId}/${d.file}`)) {
         return d;

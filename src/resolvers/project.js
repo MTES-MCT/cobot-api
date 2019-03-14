@@ -1,4 +1,5 @@
 import bcrypt from 'bcrypt';
+import _ from 'lodash';
 import { checkRoleAndResolve, checkAuthAndResolve, ADMIN } from './common';
 
 export const Project = (parent, args, { models, req }) => checkRoleAndResolve(
@@ -85,7 +86,7 @@ export const createProjectContributor = (parent, args, { models, req }) => check
   },
 );
 
-export const  deleteProjectContributor = (parent, args, { models, req }) => checkRoleAndResolve(
+export const deleteProjectContributor = (parent, args, { models, req }) => checkRoleAndResolve(
   req,
   ADMIN,
   async () => {
