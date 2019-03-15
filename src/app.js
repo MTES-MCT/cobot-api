@@ -93,7 +93,7 @@ app.use(
 app.post('/upload', upload.single('file'), async (req, res) => {
   controllers.moveFile('../../uploads/', `../../uploads/${req.body.projectId}`, req.file.filename, async (err) => {
     if (err) throw err;
-    const newDataset = await controllers.DataSet(req);
+    const newDataset = await controllers.DataSet(req.body);
     return res.status(201).send(newDataset);
   });
 });

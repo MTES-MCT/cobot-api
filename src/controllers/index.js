@@ -74,27 +74,26 @@ const DataSet = async (context) => {
     projectName,
     question,
     answers,
-  } = context.body;
+    metadata,
+  } = context;
   try {
-    return checkAuthAndResolve(context, async () => {
-      const dataset = {
-        file: context.file.filename,
-        question,
-        availableAnswers: JSON.parse(answers),
-        metadata: {
-          id: projectId,
-          source: projectName.replace(/\s/g, '').toLowerCase(),
-          geoData: context.metadata.geoData,
-          raw: context.metadata.raw,
-        },
-      };
-      try {
-        const newDataSet = await models.DataSet.create(dataset);
-        return newDataSet;
-      } catch (error) {
-        throw new Error(error);
-      }
-    });
+    const dataset = {
+      file: context.file.filename,
+      question,
+      availableAnswers: answers,
+      metadata: {
+        id: projectId,
+        source: projectName.replace(/\s/g, '').toLowerCase(),
+        geoData: metadata.geoData,
+        raw: metadata.raw,
+      },
+    };
+    try {
+      const newDataSet = await models.DataSet.create(dataset);
+      return newDataSet;
+    } catch (error) {
+      throw new Error(error);
+    }
   } catch (error) {
     throw new Error(error);
   }
@@ -108,98 +107,26 @@ const moveFile = (source, dest, file, callback) => {
   });
 };
 
-const DataSetFromDropbox = async (context, callback) => {
-  const files = [];
-  const fileName = uuid();
-  const fileNameZip = `${fileName}.zip`;
-  const uploadPath = path.join(__dirname, `../../uploads/${context.body.projectId}`);
-  const filepathZip = path.join(uploadPath, fileNameZip);
-  const filepath = path.join(uploadPath, fileName);
+const Unzip = async (source, dest, callback) => {
+  const zipper = fs.createReadStream(source)
+    .pipe(unzipper.Extract({ path: dest }));
 
-  context.metadata = {
-    geoData: null,
-    raw: null,
-  };
+  zipper.on('close', () => callback(true));
 
-  try {
-    if (!fs.existsSync(uploadPath)) {
-      fs.mkdirSync(uploadPath);
-    }
-  } catch (err) {
-    if (err) { throw err; }
-  }
-
-  const zip = fs.createWriteStream(filepathZip);
-  // arraybuffer
-  const options = {
-    responseType: 'stream',
-  };
-
-  try {
-    // const zip = await axios.get(context.body.url, options);
-    // { responseType: 'stream', adapter: httpAdapter }
-    let downloadedBytes = 0;
-    axios.get(context.body.url, options).then((response) => {
-      const stream = response.data;
-      stream.on('data', (chunk) => {
-        downloadedBytes += chunk.length;
-        console.log(prettyBytes(downloadedBytes));
-        zip.write(Buffer.from(chunk));
-      });
-      stream.on('end', () => {
-        zip.end();
-        // fs.writeFile(filepathZip, zip.data, (err) => {
-        //   if (err) { throw err; }
-        //   const zipper = fs.createReadStream(filepathZip)
-        //     .pipe(unzipper.Extract({ path: filepath }));
-
-        //   zipper.on('close', () => {
-        //     fs.readdir(filepath, (readDirErr, items) => {
-        //       if (readDirErr) { throw readDirErr; }
-        //       eachSeries(items, (item, cb) => {
-        //         const metadata = exif.parseSync(`${filepath}/${item}`);
-        //         if (metadata && metadata.GPSInfo) {
-        //           const GPSLatitude = parseGpsData(metadata.GPSInfo.GPSLatitude);
-        //           const { GPSLatitudeRef } = metadata.GPSInfo;
-        //           const GPSLongitude = parseGpsData(metadata.GPSInfo.GPSLongitude);
-        //           const { GPSLongitudeRef } = metadata.GPSInfo;
-        //           const dec = dms2dec(GPSLatitude, GPSLatitudeRef, GPSLongitude, GPSLongitudeRef);
-        //           context.metadata = {
-        //             geoData: {
-        //               location: {
-        //                 coordinates: dec,
-        //                 type: 'Point',
-        //               },
-        //             },
-        //             raw: metadata,
-        //           };
-        //         }
-        //         mv(`${filepath}/${item}`, `${uploadPath}/${item}`, { mkdirp: true }, async (mvErr) => {
-        //           if (mvErr) throw mvErr;
-        //           files.push(item);
-        //           context.file = {
-        //             filename: item,
-        //           };
-        //           await DataSet(context);
-        //           return cb();
-        //         });
-        //       }, (seriesErr) => {
-        //         if (seriesErr) { throw seriesErr; }
-        //         rimraf.sync(filepath);
-        //         rimraf.sync(filepathZip);
-        //         return callback(files);
-        //       });
-        //     });
-        //   });
-        //   zipper.on('error', (error) => {
-        //     throw error;
-        //   });
-        // });
-      });
-    });
-  } catch (error) {
+  zipper.on('error', (error) => {
     throw error;
+  });
+};
+
+const Dms2Dec = (GPSInfo) => {
+  if (GPSInfo) {
+    const GPSLatitude = parseGpsData(GPSInfo.GPSLatitude);
+    const { GPSLatitudeRef } = GPSInfo;
+    const GPSLongitude = parseGpsData(GPSInfo.GPSLongitude);
+    const { GPSLongitudeRef } = GPSInfo;
+    return dms2dec(GPSLatitude, GPSLatitudeRef, GPSLongitude, GPSLongitudeRef);
   }
+  return null;
 };
 
 module.exports = {
@@ -207,5 +134,6 @@ module.exports = {
   User,
   moveFile,
   DataSet,
-  DataSetFromDropbox,
+  Dms2Dec,
+  Unzip,
 };
