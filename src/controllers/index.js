@@ -8,6 +8,7 @@ import unzipper from 'unzipper';
 import mv from 'mv';
 import fs from 'fs';
 import path from 'path';
+import gm from 'gm';
 import exif from 'jpeg-exif';
 import dms2dec from 'dms2dec';
 import prettyBytes from 'pretty-bytes';
@@ -61,10 +62,9 @@ const User = async (context) => {
 };
 
 const parseGpsData = (data) => {
-  data[0] = `${data[0]}/1`;
-  data[1] = `${data[1]}/1`;
-  const second = data[2].toString().split('.');
-  data[2] = `${parseInt(second[0], 10)}/${parseInt(second[1], 10)}`;
+  data[0] = `${parseFloat(data[0], 10)}/1`;
+  data[1] = `${parseFloat(data[1], 10)}/1`;
+  data[2] = `${parseFloat(data[2], 10)}/1`;
   return data.join(',');
 };
 
@@ -107,6 +107,17 @@ const moveFile = (source, dest, file, callback) => {
   });
 };
 
+const ResizeFile = (source, dest, size, callback) => {
+  const gmImageMagick = gm.subClass({ imageMagick: true });
+  gmImageMagick(source)
+    .resize(size)
+    .noProfile()
+    .write(dest, (err) => {
+      if (err) throw err;
+      return callback(dest);
+    });
+};
+
 const Unzip = async (source, dest, callback) => {
   const zipper = fs.createReadStream(source)
     .pipe(unzipper.Extract({ path: dest }));
@@ -133,6 +144,7 @@ module.exports = {
   Auth,
   User,
   moveFile,
+  ResizeFile,
   DataSet,
   Dms2Dec,
   Unzip,

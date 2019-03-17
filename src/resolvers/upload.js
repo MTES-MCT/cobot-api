@@ -10,7 +10,7 @@ import rimraf from 'rimraf';
 import uuid from 'uuid/v1';
 
 import { checkRoleAndResolve, pubsub, withFilter, UPLOAD_PROGRESS, ADMIN } from './common';
-import { Unzip, Dms2Dec, DataSet } from '../controllers';
+import { Unzip, ResizeFile, Dms2Dec, DataSet } from '../controllers';
 
 const pusblishProgress = (data, uid) => {
   pubsub.publish(
@@ -61,6 +61,7 @@ export const dropbox = (parent, args, { req }) => checkRoleAndResolve(
     try {
       if (!fs.existsSync(uploadPath)) {
         fs.mkdirSync(uploadPath);
+        fs.mkdirSync(`${uploadPath}/original`);
       }
     } catch (err) {
       if (err) { throw err; }
@@ -89,26 +90,28 @@ export const dropbox = (parent, args, { req }) => checkRoleAndResolve(
                   if (metadata && metadata.GPSInfo) {
                     dec = Dms2Dec(metadata.GPSInfo);
                   }
-                  mv(`${filepath}/${item}`, `${uploadPath}/${item}`, { mkdirp: true }, async (mvErr) => {
+                  mv(`${filepath}/${item}`, `${uploadPath}/original/${item}`, { mkdirp: true }, async (mvErr) => {
                     if (mvErr) throw mvErr;
-                    files.push(item);
-                    if (dec) {
-                      context.metadata = {
-                        geoData: {
-                          location: {
-                            coordinates: dec,
-                            type: 'Point',
+                    ResizeFile(`${uploadPath}/original/${item}`, `${uploadPath}/${item}`, 1440, async () => {
+                      files.push(item);
+                      if (dec) {
+                        context.metadata = {
+                          geoData: {
+                            location: {
+                              coordinates: dec,
+                              type: 'Point',
+                            },
                           },
-                        },
-                        raw: metadata,
+                          raw: metadata,
+                        };
+                      }
+                      context.file = {
+                        filename: item,
                       };
-                    }
-                    context.file = {
-                      filename: item,
-                    };
-                    await DataSet(context);
-                    pusblishProgress(`Traitement de la photo ${key}/${items.length}`, user.id);
-                    return cb();
+                      await DataSet(context);
+                      pusblishProgress(`Traitement de la photo ${key}/${items.length}`, user.id);
+                      return cb();
+                    });
                   });
                 }, (seriesErr) => {
                   if (seriesErr) { throw seriesErr; }
