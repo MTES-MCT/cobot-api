@@ -87,22 +87,26 @@ export const dropbox = (parent, args, { req }) => checkRoleAndResolve(
                 eachOfSeries(items, (item, key, cb) => {
                   const metadata = exif.parseSync(`${filepath}/${item}`);
                   let dec = null;
-                  if (metadata && metadata.GPSInfo) {
-                    dec = Dms2Dec(metadata.GPSInfo);
+                  context.metadata = {
+                    geoData: null,
+                    raw: null,
+                  };
+                  if (metadata) {
+                    context.metadata.raw = metadata;
+                    if (metadata.GPSInfo) {
+                      dec = Dms2Dec(metadata.GPSInfo);
+                    }
                   }
                   mv(`${filepath}/${item}`, `${uploadPath}/original/${item}`, { mkdirp: true }, async (mvErr) => {
                     if (mvErr) throw mvErr;
                     ResizeFile(`${uploadPath}/original/${item}`, `${uploadPath}/${item}`, 1440, async () => {
                       files.push(item);
                       if (dec) {
-                        context.metadata = {
-                          geoData: {
-                            location: {
-                              coordinates: dec,
-                              type: 'Point',
-                            },
+                        context.metadata.geoData = {
+                          location: {
+                            coordinates: dec,
+                            type: 'Point',
                           },
-                          raw: metadata,
                         };
                       }
                       context.file = {
