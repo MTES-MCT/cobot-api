@@ -2,6 +2,7 @@ export default `
   type Project {
     id: ID!
     name: String
+    details: String
     question: String
     owner: ID
     answers: [Answer]
@@ -10,6 +11,7 @@ export default `
   input ProjectInput {
     id: ID!
     name: String
+    details: String
     question: String
     owner: ID
     role: Int

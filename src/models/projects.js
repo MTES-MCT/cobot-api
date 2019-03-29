@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 
 const projectsSchema = mongoose.Schema({
   name: String,
+  details: String,
   question: String,
   owner: { type: mongoose.Schema.Types.ObjectId, ref: 'Users' },
   answers: [{
