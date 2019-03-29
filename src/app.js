@@ -57,7 +57,7 @@ router.get('/user', async (req, res) => {
       id: user._id,
       email: user.email,
       name: user.name,
-      role: user.role,
+      role: user.projects[0].role,
       projects: user.projects,
     });
   } catch (error) {
@@ -98,12 +98,18 @@ app.post('/upload', upload.single('file'), async (req, res) => {
   });
 });
 
-app.post('/dropbox', (req, res) => {
-  if (req.body.url && req.body.url.indexOf('dropbox') > -1) {
-    controllers.DataSetFromDropbox(req, (files => res.status(201).send(files)));
-  } else {
-    return res.status(400).send();
-  }
+// app.post('/dropbox', (req, res) => {
+//   if (req.body.url && req.body.url.indexOf('dropbox') > -1) {
+//     controllers.DataSetFromDropbox(req, (files => res.status(201).send(files)));
+//   } else {
+//     return res.status(400).send();
+//   }
+// });
+
+app.get('/export', async (req, res) => {
+  const exportResult = await controllers.ExportData(req, req.query);
+  console.log(exportResult);
+  return res.status(200).send();
 });
 
 app.use(
