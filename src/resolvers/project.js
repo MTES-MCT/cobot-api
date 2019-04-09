@@ -33,6 +33,7 @@ export const createProject = async (parent, args, { models, req }) => checkAuthA
   async (user) => {
     const project = {
       name: args.name,
+      details: args.details,
       question: args.question,
       answers: args.answers,
       owner: user.id,

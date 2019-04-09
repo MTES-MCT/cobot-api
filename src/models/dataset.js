@@ -8,6 +8,9 @@ const datasetSchema = mongoose.Schema({
     id: { type: mongoose.Schema.Types.ObjectId, ref: 'Projects' },
     geoData: {},
     raw: {},
+    originalWidth: Number,
+    originalHeight: Number,
+    originalOrientation: Number,
   },
   availableAnswers: [{
     text: String,

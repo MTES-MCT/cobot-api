@@ -12,7 +12,7 @@ export default `
     dataSetAnswers(id: ID!, answer: String!): User!
     updateMessage(id: ID!, message: [MessageInput], attachments: [AttachmentInput], actions: [ActionInput]): ID!
     deleteMessage(id: ID!): String
-    createProject(name: String, question: String, answers: [AnswerInput]): Project!
+    createProject(name: String, details: String, question: String, answers: [AnswerInput]): Project!
     deleteProject(id: ID!): String
     updateProject(id: ID!, name: String, question: String, answers: [AnswerInput]): Project!
     createProjectContributor(id: ID!, email: String, role: Int): User

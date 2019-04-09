@@ -15,5 +15,8 @@ export default `
     source: String
     geoData: GeoData
     raw: String
+    originalWidth: Int
+    originalHeight: Int
+    originalOrientation: Int
   }
 `;

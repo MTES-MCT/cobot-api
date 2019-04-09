@@ -90,9 +90,17 @@ export const dropbox = (parent, args, { req }) => checkRoleAndResolve(
                   context.metadata = {
                     geoData: null,
                     raw: null,
+                    originalWidth: null,
+                    originalHeight: null,
+                    originalOrientation: null,
                   };
                   if (metadata) {
                     context.metadata.raw = metadata;
+                    if (metadata && metadata.SubExif) {
+                      context.metadata.originalWidth = metadata.SubExif.PixelXDimension;
+                      context.metadata.originalHeight = metadata.SubExif.PixelYDimension;
+                      context.metadata.originalOrientation = metadata.Orientation;
+                    }
                     if (metadata.GPSInfo) {
                       dec = Dms2Dec(metadata.GPSInfo);
                     }
@@ -112,9 +120,13 @@ export const dropbox = (parent, args, { req }) => checkRoleAndResolve(
                       context.file = {
                         filename: item,
                       };
-                      await DataSet(context);
-                      pusblishProgress(`Traitement de la photo ${key}/${items.length}`, user.id);
-                      return cb();
+                      try {
+                        await DataSet(context);
+                        pusblishProgress(`Traitement de la photo ${key}/${items.length}`, user.id);
+                        return cb();
+                      } catch (e) {
+                        throw new Error(e);
+                      }
                     });
                   });
                 }, (seriesErr) => {

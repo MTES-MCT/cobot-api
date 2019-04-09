@@ -73,7 +73,7 @@ export const DataSetBySource = (parent, args, { models, req }) => checkAuthAndRe
           numAnswers: -1,
         },
       },
-    ]).limit(100);
+    ]).limit(1000);
 
     const dataset = _.map(data, rawFieldToString);
     return dataset;

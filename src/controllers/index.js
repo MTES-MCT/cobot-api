@@ -61,6 +61,23 @@ const User = async (context) => {
   }
 };
 
+const ExportData = async (header, query) => {
+  try {
+    return checkAuthAndResolve(header, async (token) => {
+      console.log(query, token);
+      return 'ok';
+      // const user = await models.Users.findById(token.id);
+      // if (!user) {
+      //   throw new Error('No user with that email');
+      // } else {
+      //   return user;
+      // }
+    });
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
 const parseGpsData = (data) => {
   data[0] = `${parseFloat(data[0], 10)}/1`;
   data[1] = `${parseFloat(data[1], 10)}/1`;
@@ -86,6 +103,9 @@ const DataSet = async (context) => {
         source: projectName.replace(/\s/g, '').toLowerCase(),
         geoData: metadata.geoData,
         raw: metadata.raw,
+        originalWidth: metadata.originalWidth,
+        originalHeight: metadata.originalHeight,
+        originalOrientation: metadata.originalOrientation,
       },
     };
     try {
@@ -111,9 +131,10 @@ const ResizeFile = (source, dest, size, callback) => {
   const gmImageMagick = gm.subClass({ imageMagick: true });
   gmImageMagick(source)
     .resize(size)
+    .autoOrient()
     .noProfile()
-    .write(dest, (err) => {
-      if (err) throw err;
+    .write(dest, (resizeErr) => {
+      if (resizeErr) throw resizeErr;
       return callback(dest);
     });
 };
@@ -148,4 +169,5 @@ module.exports = {
   DataSet,
   Dms2Dec,
   Unzip,
+  ExportData,
 };
