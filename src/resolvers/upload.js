@@ -8,6 +8,7 @@ import fs from 'fs';
 import path from 'path';
 import rimraf from 'rimraf';
 import uuid from 'uuid/v1';
+import mime from 'mime/lite';
 
 import { checkRoleAndResolve, pubsub, withFilter, UPLOAD_PROGRESS, ADMIN } from './common';
 import { Unzip, ResizeFile, Dms2Dec, DataSet } from '../controllers';
@@ -85,50 +86,56 @@ export const dropbox = (parent, args, { req }) => checkRoleAndResolve(
               fs.readdir(filepath, (readDirErr, items) => {
                 if (readDirErr) { throw readDirErr; }
                 eachOfSeries(items, (item, key, cb) => {
-                  const metadata = exif.parseSync(`${filepath}/${item}`);
-                  let dec = null;
-                  context.metadata = {
-                    geoData: null,
-                    raw: null,
-                    originalWidth: null,
-                    originalHeight: null,
-                    originalOrientation: null,
-                  };
-                  if (metadata) {
-                    context.metadata.raw = metadata;
-                    if (metadata && metadata.SubExif) {
-                      context.metadata.originalWidth = metadata.SubExif.PixelXDimension;
-                      context.metadata.originalHeight = metadata.SubExif.PixelYDimension;
-                      context.metadata.originalOrientation = metadata.Orientation;
+                  console.log(`Working on file ${item}`);
+                  const fileType = mime.getType(`${filepath}/${item}`);
+                  if (fileType === 'image/jpeg') {
+                    const metadata = exif.parseSync(`${filepath}/${item}`);
+                    let dec = null;
+                    context.metadata = {
+                      geoData: null,
+                      raw: null,
+                      originalWidth: null,
+                      originalHeight: null,
+                      originalOrientation: null,
+                    };
+                    if (metadata) {
+                      context.metadata.raw = metadata;
+                      if (metadata && metadata.SubExif) {
+                        context.metadata.originalWidth = metadata.SubExif.PixelXDimension;
+                        context.metadata.originalHeight = metadata.SubExif.PixelYDimension;
+                        context.metadata.originalOrientation = metadata.Orientation;
+                      }
+                      if (metadata.GPSInfo) {
+                        dec = Dms2Dec(metadata.GPSInfo);
+                      }
                     }
-                    if (metadata.GPSInfo) {
-                      dec = Dms2Dec(metadata.GPSInfo);
-                    }
-                  }
-                  mv(`${filepath}/${item}`, `${uploadPath}/original/${item}`, { mkdirp: true }, async (mvErr) => {
-                    if (mvErr) throw mvErr;
-                    ResizeFile(`${uploadPath}/original/${item}`, `${uploadPath}/${item}`, 1440, async () => {
-                      files.push(item);
-                      if (dec) {
-                        context.metadata.geoData = {
-                          location: {
-                            coordinates: dec,
-                            type: 'Point',
-                          },
+                    mv(`${filepath}/${item}`, `${uploadPath}/original/${item}`, { mkdirp: true }, async (mvErr) => {
+                      if (mvErr) throw mvErr;
+                      ResizeFile(`${uploadPath}/original/${item}`, `${uploadPath}/${item}`, 1440, async () => {
+                        files.push(item);
+                        if (dec) {
+                          context.metadata.geoData = {
+                            location: {
+                              coordinates: dec,
+                              type: 'Point',
+                            },
+                          };
+                        }
+                        context.file = {
+                          filename: item,
                         };
-                      }
-                      context.file = {
-                        filename: item,
-                      };
-                      try {
-                        await DataSet(context);
-                        pusblishProgress(`Traitement de la photo ${key}/${items.length}`, user.id);
-                        return cb();
-                      } catch (e) {
-                        throw new Error(e);
-                      }
+                        try {
+                          await DataSet(context);
+                          pusblishProgress(`Traitement de la photo ${key}/${items.length}`, user.id);
+                          return cb();
+                        } catch (e) {
+                          throw new Error(e);
+                        }
+                      });
                     });
-                  });
+                  } else {
+                    return cb();
+                  }
                 }, (seriesErr) => {
                   if (seriesErr) { throw seriesErr; }
                   rimraf.sync(filepath);
