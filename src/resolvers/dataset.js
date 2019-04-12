@@ -3,7 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import _ from 'lodash';
 import moment from 'moment';
-import { checkAuthAndResolve, pubsub, CONTRIBUTION_ADDED } from './common';
+import { checkRoleAndResolve, checkAuthAndResolve, pubsub, ADMIN, CONTRIBUTION_ADDED } from './common';
 
 const rawFieldToString = (row) => {
   row.metadata.raw = (row.metadata.raw) ? JSON.stringify(row.metadata.raw) : null;
@@ -169,3 +169,11 @@ export const dataSetAnswers = async (parent, args, { models, req }) => {
 
   return updatedUser;
 };
+
+export const dataDelete = (parent, args, { models, req }) => checkRoleAndResolve(
+  req,
+  ADMIN,
+  async () => {
+    await models.DataSet.remove({ _id: args.id });
+  },
+);

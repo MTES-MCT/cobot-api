@@ -10,6 +10,7 @@ export default `
     authorization(email: String!, password: String!): String!
     loginByBot(channel: String!, channelUid: String!): User!
     dataSetAnswers(id: ID!, answer: String!): User!
+    dataDelete(id: ID!): String
     updateMessage(id: ID!, message: [MessageInput], attachments: [AttachmentInput], actions: [ActionInput]): ID!
     deleteMessage(id: ID!): String
     createProject(name: String, details: String, question: String, answers: [AnswerInput]): Project!
