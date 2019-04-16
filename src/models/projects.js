@@ -9,6 +9,10 @@ const projectsSchema = mongoose.Schema({
     text: String,
     order: Number,
   }],
+  labels: [{
+    text: String,
+    order: Number,
+  }],
 }, {
   collection: 'projects',
 });

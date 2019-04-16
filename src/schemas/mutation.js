@@ -15,7 +15,7 @@ export default `
     deleteMessage(id: ID!): String
     createProject(name: String, details: String, question: String, answers: [AnswerInput]): Project!
     deleteProject(id: ID!): String
-    updateProject(id: ID!, name: String, question: String, answers: [AnswerInput]): Project!
+    updateProject(id: ID!, name: String, question: String, answers: [AnswerInput], labels: [LabelInput]): Project!
     createProjectContributor(id: ID!, email: String, role: Int): User
     deleteProjectContributor(id: ID!, email: String): [User]
     dropbox(url: String, project: ProjectInput): String

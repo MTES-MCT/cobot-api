@@ -11,13 +11,15 @@ export const Me = (parent, args, { models, req }) => checkAuthAndResolve(
     const userProjectDetails = [];
     await Promise.map(user.projects, async (project) => {
       const projectDetails = await models.Projects.findById(project.id);
-      userProjectDetails.push({
-        id: project.id,
-        name: projectDetails.name,
-        role: project.role,
-        question: projectDetails.question,
-        answers: projectDetails.answers,
-      });
+      if (projectDetails) {
+        userProjectDetails.push({
+          id: project.id,
+          name: projectDetails.name,
+          role: project.role,
+          question: projectDetails.question,
+          answers: projectDetails.answers,
+        });
+      }
     });
     user.projects = userProjectDetails;
     return user;

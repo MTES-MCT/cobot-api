@@ -7,6 +7,7 @@ import bot from './bot';
 import contribution from './contribution';
 import dataset from './dataset';
 import geoData from './geoData';
+import label from './label';
 import message from './message';
 import project from './project';
 import statistic from './statistic';
@@ -23,6 +24,7 @@ const schema = `
   ${action}
   ${attachment}
   ${answer}
+  ${label}
   ${bot}
   ${contribution}
   ${dataset}

@@ -36,10 +36,20 @@ export const createProject = async (parent, args, { models, req }) => checkAuthA
       details: args.details,
       question: args.question,
       answers: args.answers,
+      labels: args.labels,
       owner: user.id,
     };
     try {
       const newProject = await models.Projects.create(project);
+      await models.Users.findByIdAndUpdate(user.id, {
+        $push: {
+          projects: {
+            id: newProject._id,
+            role: 100,
+          },
+        },
+      });
+
       return newProject;
     } catch (error) {
       return error;
@@ -114,11 +124,13 @@ export const updateProject = async (parent, args, { models, req }) => checkAuthA
       name: args.name,
       question: args.question,
       answers: args.answers,
+      labels: args.labels,
       owner: user.id,
     };
     try {
       const project = await models.Projects.findOne({ _id: args.id });
       await models.Projects.findOneAndUpdate({ _id: args.id }, updatedProject);
+
       // update Dataset question & answers
       await models.DataSet.updateMany({
         'metadata.source': args.id, // projectSlugName,
@@ -131,15 +143,17 @@ export const updateProject = async (parent, args, { models, req }) => checkAuthA
         },
       });
       // update Dataset users's answers
-      await Promise.map(project.answers, async (answer, index) => {
-        await models.DataSet.updateMany({
-          'usersAnswers.answers': answer.text,
-        }, {
-          $set: {
-            'usersAnswers.$.answers': updatedProject.answers[index].text,
-          },
+      if (project.answers.length > 0) {
+        await Promise.map(project.answers, async (answer, index) => {
+          await models.DataSet.updateMany({
+            'usersAnswers.answers': answer.text,
+          }, {
+            $set: {
+              'usersAnswers.$.answers': updatedProject.answers[index].text,
+            },
+          });
         });
-      });
+      }
 
       return updatedProject;
     } catch (error) {

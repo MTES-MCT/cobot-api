@@ -6,6 +6,7 @@ export default `
     question: String
     owner: ID
     answers: [Answer]
+    labels: [Label]
   }
 
   input ProjectInput {
@@ -16,5 +17,6 @@ export default `
     owner: ID
     role: Int
     answers: [AnswerInput]
+    labels: [LabelInput]
   }
 `;
