@@ -1,5 +1,6 @@
 import bcrypt from 'bcrypt';
 import _ from 'lodash';
+import Promise from 'bluebird';
 import { checkRoleAndResolve, checkAuthAndResolve, ADMIN } from './common';
 
 export const Project = (parent, args, { models, req }) => checkRoleAndResolve(
