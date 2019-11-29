@@ -8,6 +8,8 @@ import { makeExecutableSchema } from 'graphql-tools';
 import path from 'path';
 import multer from 'multer';
 import cors from 'cors';
+import rimraf from 'rimraf';
+import fs from 'fs';
 
 import { attachDirectives } from './directives';
 import config from './config';
@@ -108,8 +110,10 @@ app.post('/upload', upload.single('file'), async (req, res) => {
 
 app.get('/export', async (req, res) => {
   const exportResult = await controllers.ExportData(req, req.query);
-  console.log(exportResult);
-  return res.status(200).send();
+  res.download(`${exportResult}.zip`, () => {
+    fs.unlinkSync(`${exportResult}.zip`);
+    rimraf(exportResult, () => { });
+  });
 });
 
 app.use(
