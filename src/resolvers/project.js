@@ -25,6 +25,18 @@ export const ProjectContributors = (parent, args, { models, req }) => checkRoleA
         },
       },
     ]);
+    await Promise.map(contributors, async (contributor) => {
+      contributor.photos = await models.DataSet.count({ user: models.toObjectId(contributor._id) });
+      const labels = await models.DataSet.aggregate([
+        {
+          $match: {
+            'usersAnswers.userId': models.toObjectId(contributor._id),
+            'metadata.id': models.toObjectId(args.id),
+          },
+        },
+      ]);
+      contributor.labels = labels.length;
+    });
     return contributors;
   },
 );
@@ -103,9 +115,7 @@ export const deleteProjectContributor = (parent, args, { models, req }) => check
   ADMIN,
   async () => {
     const contributors = await models.Users.findOne({ email: args.email });
-    const projects = _.filter(contributors.projects, (project) => {
-      return project.id.toString() !== args.id;
-    });
+    const projects = _.filter(contributors.projects, project => project.id.toString() !== args.id);
     await models.Users.findOneAndUpdate({ _id: contributors.id }, { projects });
     const newContributors = await models.Users.aggregate([
       {

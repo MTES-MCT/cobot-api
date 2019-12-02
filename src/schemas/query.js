@@ -5,6 +5,7 @@ export default `
     DataSet(projectId: ID!, id: ID, notAnswered: Boolean): DataSet
     DataSetBySource(id: ID!): [DataSet]
     DataSetStats(id: ID!): Statistics
+    DataSetNumLabel(projectId: ID!, label: String!): Int
     Me: User
     Messages: [Message]
     Message(name: String, id: ID): Message

@@ -15,7 +15,7 @@ import {
   loginByBot,
 } from './user';
 import Actions from './action';
-import { DataSet, DataSetBySource, DataSetStats, dataSetAnswers, dataDelete } from './dataset';
+import { DataSet, DataSetBySource, DataSetStats, dataSetAnswers, dataDelete, DataSetNumLabel } from './dataset';
 import { Messages, Message, updateMessage, deleteMessage } from './messages';
 import {
   Project,
@@ -44,6 +44,7 @@ export default {
     DataSet,
     DataSetBySource,
     DataSetStats,
+    DataSetNumLabel,
 
     Messages,
     Message,

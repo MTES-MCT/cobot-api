@@ -2,6 +2,7 @@
 import fs from 'fs';
 import path from 'path';
 import _ from 'lodash';
+import Promise from 'bluebird';
 import moment from 'moment';
 import { checkRoleAndResolve, checkAuthAndResolve, pubsub, ADMIN, CONTRIBUTION_ADDED } from './common';
 
@@ -76,6 +77,28 @@ export const DataSetBySource = (parent, args, { models, req }) => checkAuthAndRe
     ]).limit(1000);
 
     const dataset = _.map(data, rawFieldToString);
+    return dataset;
+  },
+);
+
+export const DataSetNumLabel = (parent, args, { models, req }) => checkAuthAndResolve(
+  req,
+  async () => {
+    const datas = await models.DataSet.aggregate([
+      {
+        $match: {
+          'metadata.id': models.toObjectId(args.projectId),
+        },
+      },
+    ]);
+    let dataset = 0;
+    await Promise.map(datas, async (data) => {
+      await Promise.map(data.usersAnswers, async (answer) => {
+        if (answer.answers.indexOf(args.label) > -1) {
+          dataset += 1;
+        }
+      });
+    });
     return dataset;
   },
 );
