@@ -11,6 +11,8 @@ export default `
     lastConnection: String
     activity: UserActivity
     projects: [UserProjects]
+    photos: Int
+    labels: Int
   }
 
   type UserProjects {
