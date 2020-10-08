@@ -15,6 +15,7 @@ import prettyBytes from 'pretty-bytes';
 import _ from 'lodash';
 import jsonxml from 'jsontoxml';
 import archiver from 'archiver';
+import mvFile from 'move-file';
 
 import { checkAuthAndResolve } from '../policies';
 import models from '../models';
@@ -87,8 +88,8 @@ const pascalVoc = (file, metadata, data) => jsonxml({
         database: 'StreetCo',
       },
       size: {
-        width: metadata.raw.ImageWidth,
-        height: metadata.raw.ImageHeight,
+        width: (metadata.raw.ImageWidth) ? metadata.raw.ImageWidth : 400,
+        height: (metadata.raw.ImageHeight) ? metadata.raw.ImageHeight : 300,
         depth: 3,
       },
       segemented: 0,
@@ -115,6 +116,9 @@ const ExportData = async (header, query) => {
         {
           $match: {
             'metadata.id': models.toObjectId(query.projectId),
+            // 'usersAnswers.userId': {
+            //   $ne: models.toObjectId('5cadef0f2f444e1a93fc7c3f'),
+            // },
           },
         },
         {
@@ -138,29 +142,85 @@ const ExportData = async (header, query) => {
       ]).limit(10000);
 
       if (query.criteria) {
-        const dir = `uploads/extract-${query.projectId}`;
+        const dir = path.join(__dirname, `../../uploads/extract-${query.projectId}`);
         if (!fs.existsSync(dir)) {
           fs.mkdirSync(dir, '0777');
         }
+        const dirTest = path.join(__dirname, `../../uploads/extract-${query.projectId}/test`);
+        if (!fs.existsSync(dirTest)) {
+          fs.mkdirSync(dirTest, '0777');
+        }
         const criteria = query.criteria.split(',');
+        const csv = [];
         eachSeries(data, (d, cb) => {
+          // console.log('Working on file ', d.file);
           const answers = _.map(d.usersAnswers, 'answers');
-          _.each(answers, (answer) => {
-            const a = JSON.parse(answer);
-            if (criteria.indexOf(a.label.id) > -1) {
-              fs.copyFile(`uploads/${query.projectId}/${d.file}`, `${dir}/${d.file}`, (err) => {
-                if (err) throw err;
-                const pascalVocFilename = `${d.file.split('.')[0]}.xml`;
-                fs.writeFileSync(`${dir}/${pascalVocFilename}`, pascalVoc(d.file, d.metadata, a), 'binary');
-                cb();
-              });
+          if (answers.length > 0) {
+            let isCriteriaMatchingOnce = false;
+            let filteredAnswer = answers[0];
+            let a = JSON.parse(filteredAnswer);
+            if (a.origin.length !== 4 && answers[1]) {
+              // console.log('** Use alternative answer');
+              filteredAnswer = answers[1];
+              a = JSON.parse(filteredAnswer);
+              // console.log(answers[1]);
+            }
+            if (a.label && criteria.indexOf(a.label.id) > -1 && a.origin.length) {
+              if (!isCriteriaMatchingOnce) {
+                isCriteriaMatchingOnce = true;
+                // console.log('Criteria matching !', isCriteriaMatchingOnce);
+                if (!query.isGoogleVision) {
+                  fs.copyFile(path.join(__dirname, `../../uploads/${query.projectId}/${d.file}`), `${dir}/${d.file}`, (err) => {
+                    if (err) throw err;
+                    const pascalVocFilename = `${d.file.split('.')[0]}.xml`;
+                    fs.writeFileSync(`${dir}/${pascalVocFilename}`, pascalVoc(d.file, d.metadata, a), 'binary');
+                    // console.log('Pascal Voc file created.');
+                    // console.log('Criteria matching one...next..');
+                    cb();
+                  });
+                } else {
+                  fs.copyFile(path.join(__dirname, `../../uploads/${query.projectId}/${d.file}`), `${dir}/${d.file}`, (err) => {
+                    if (err) throw err;
+                    const width = (d.metadata.raw.ImageWidth) ? d.metadata.raw.ImageWidth : 400;
+                    const height = (d.metadata.raw.ImageHeight) ? d.metadata.raw.ImageHeight : 300;
+                    const xmin = ((a.voc.xmin * 100) / width) / 100;
+                    const ymin = ((a.voc.yminVoc * 100) / height) / 100;
+                    const xmax = ((a.voc.xmax * 100) / width) / 100;
+                    const ymax = ((a.voc.ymaxVoc * 100) / height) / 100;
+                    csv.push(`,gs://ia-garbage-build/${d.file},${a.label.id},${xmin},${ymin},,,${xmax},${ymax},,`);
+                    cb();
+                  });
+                }
+              }
             } else {
+              // console.log('Criteria NOT matching !');
               cb();
             }
-          });
+            // _.each(firstAnswer, (answer) => {
+            // });
+          } else {
+            // console.log('NO answer!');
+            cb();
+          }
         }, async () => {
-          await zipdata(dir);
-          resolve(dir);
+          if (!query.isGoogleVision) {
+            fs.readdir(dir, async (error, files) => {
+              const totalFiles = files.length;
+              const tenPct = Math.ceil(totalFiles / 10);
+              let i = 0;
+              while (i < tenPct) {
+                await mvFile(`${dir}/${files[i]}`, `${dirTest}/${files[i]}`);
+                i++;
+              }
+              await zipdata(dir);
+              resolve(dir);
+            });
+          } else {
+            const googleVisionFilename = 'googleVisionFilename.csv';
+            fs.writeFileSync(`${dir}/${googleVisionFilename}`, csv.join('\n'), 'binary');
+            await zipdata(dir);
+            resolve(dir);
+          }
         });
       }
     }));

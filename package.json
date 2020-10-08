@@ -5,12 +5,13 @@
   "description": "Jeu d'APIs pour Co-Construisons",
   "keywords": [],
   "dependencies": {
+    "@google-cloud/storage": "^5.3.0",
     "apollo-errors": "^1.7.1",
     "archiver": "^3.1.1",
     "async": "^2.6.2",
     "axios": "^0.18.1",
     "babel-runtime": "^6.26.0",
-    "bcrypt": "^3.0.2",
+    "bcrypt": "^3.0.8",
     "bluebird": "^3.5.1",
     "body-parser": "^1.18.2",
     "cors": "^2.8.4",
@@ -30,6 +31,7 @@
     "mime": "^2.4.2",
     "moment": "^2.21.0",
     "mongoose": "^5.4.13",
+    "move-file": "^1.2.0",
     "multer": "^1.4.1",
     "mv": "^2.1.1",
     "pretty-bytes": "^5.1.0",
@@ -50,7 +52,8 @@
     "eslint": "^4.18.2",
     "eslint-config-airbnb-base": "^12.1.0",
     "eslint-plugin-import": "^2.9.0",
-    "nodemon": "^1.18.9"
+    "nodemon": "^1.18.9",
+    "tunnel-ssh": "^4.1.4"
   },
   "scripts": {
     "dev": "nodemon -L ./src/app.js --exec \"node -r dotenv/config -r babel-register\"",

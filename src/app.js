@@ -10,6 +10,7 @@ import multer from 'multer';
 import cors from 'cors';
 import rimraf from 'rimraf';
 import fs from 'fs';
+import { Storage } from '@google-cloud/storage';
 
 import { attachDirectives } from './directives';
 import config from './config';
@@ -42,6 +43,7 @@ const router = express.Router();
 // Front-End authentication mecanism require a response in header.
 router.post('/login', async (req, res) => {
   try {
+    console.log(req.body);
     const auth = await controllers.Auth(req.body.email, req.body.password);
     res.set('Authorization', auth.token);
     res.send(200, { user: auth.user });
@@ -114,6 +116,31 @@ app.get('/export', async (req, res) => {
     fs.unlinkSync(`${exportResult}.zip`);
     rimraf(exportResult, () => { });
   });
+});
+
+app.post('/export-to-automl', async (req, res) => {
+  const storage = new Storage();
+  try {
+    const results = await storage.getBuckets();
+    const [buckets] = results;
+    console.log('Buckets:');
+    buckets.forEach((bucket) => {
+      console.log(bucket.name);
+    });
+  } catch (err) {
+    console.error('ERROR:', err);
+  }
+  return res.status(200).send('ok');
+  // const storage = new Storage();
+  // const bucket = storage.bucket('ia-garbage-build');
+  // bucket.upload('/local/path/image.png', (err, file, apiResponse) => {
+  //   if (err) {
+  //     console.log(err);
+  //   } else {
+  //     console.log(file);
+  //   }
+  //   return res.status(200).send('ok');
+  // });
 });
 
 app.use(

@@ -15,7 +15,7 @@ import {
   loginByBot,
 } from './user';
 import Actions from './action';
-import { DataSet, DataSetBySource, DataSetStats, dataSetAnswers, dataDelete, DataSetNumLabel } from './dataset';
+import { AutoMLExport, DataSet, DataSetBySource, DataSetStats, dataSetAnswers, dataDelete, DataSetNumLabel } from './dataset';
 import { Messages, Message, updateMessage, deleteMessage } from './messages';
 import {
   Project,
@@ -41,6 +41,7 @@ export default {
 
     Actions,
 
+    AutoMLExport,
     DataSet,
     DataSetBySource,
     DataSetStats,

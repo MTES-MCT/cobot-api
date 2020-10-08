@@ -11,6 +11,7 @@ const datasetSchema = mongoose.Schema({
     originalWidth: Number,
     originalHeight: Number,
     originalOrientation: Number,
+    autoMLExported: Boolean,
   },
   availableAnswers: [{
     text: String,
