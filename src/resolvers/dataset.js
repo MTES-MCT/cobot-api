@@ -99,8 +99,9 @@ export const DataSetBySource = (parent, args, { models, req }) => checkAuthAndRe
           numAnswers: -1,
         },
       },
-    ]).limit(2000);
-
+    ])
+      .skip(args.offset)
+      .limit(args.limit);
     const dataset = _.map(data, rawFieldToString);
     return dataset;
   },
@@ -323,5 +324,19 @@ export const AutoMLExport = (parent, args, { models, req }) => checkAuthAndResol
         resolve(selectedDatas);
       });
     });
+  },
+);
+
+export const CountDataSetBySource = (parent, args, { models, req }) => checkAuthAndResolve(
+  req,
+  async () => {
+    try {
+      const num = await models.DataSet.countDocuments({
+        'metadata.id': models.toObjectId(args.projectId),
+      });
+      return num;
+    } catch (e) {
+      console.log(e);
+    }
   },
 );

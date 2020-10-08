@@ -4,9 +4,10 @@ export default `
     AutoLogin(email: String!): User
     AutoMLExport(projectId: ID!, label: String): [DataSet]
     DataSet(projectId: ID!, id: ID, notAnswered: Boolean): DataSet
-    DataSetBySource(id: ID!): [DataSet]
+    DataSetBySource(id: ID!, offset: Int, limit: Int): [DataSet]
     DataSetStats(id: ID!): Statistics
     DataSetNumLabel(projectId: ID!, label: String!): String
+    CountDataSetBySource(projectId: ID!): Int
     Me: User
     Messages: [Message]
     Message(name: String, id: ID): Message
