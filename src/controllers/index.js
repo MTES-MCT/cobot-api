@@ -295,12 +295,13 @@ const Unzip = async (source, dest, callback) => {
   zipper.on('close', () => callback(true));
 
   zipper.on('error', (error) => {
+    console.log(error);
     throw error;
   });
 };
 
 const Dms2Dec = (GPSInfo) => {
-  if (GPSInfo) {
+  if (GPSInfo && GPSInfo.GPSLatitude) {
     const GPSLatitude = parseGpsData(GPSInfo.GPSLatitude);
     const { GPSLatitudeRef } = GPSInfo;
     const GPSLongitude = parseGpsData(GPSInfo.GPSLongitude);

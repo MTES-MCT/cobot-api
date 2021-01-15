@@ -69,6 +69,7 @@ export const dropbox = (parent, args, { req }) => checkRoleAndResolve(
     }
 
     let downloadedBytes = 0;
+
     const res = await axios.get(args.url, options)
       .then((response) => {
         if (response.headers['content-type'] === 'application/zip') {
@@ -88,8 +89,10 @@ export const dropbox = (parent, args, { req }) => checkRoleAndResolve(
                 eachOfSeries(items, (item, key, cb) => {
                   console.log(`Working on file ${item}`);
                   const fileType = mime.getType(`${filepath}/${item}`);
+                  console.log(`File type ${item}`);
                   if (fileType === 'image/jpeg') {
                     const metadata = exif.parseSync(`${filepath}/${item}`);
+                    console.log(`Metadata ${metadata}`);
                     let dec = null;
                     context.metadata = {
                       geoData: null,
@@ -106,12 +109,17 @@ export const dropbox = (parent, args, { req }) => checkRoleAndResolve(
                         context.metadata.originalOrientation = metadata.Orientation;
                       }
                       if (metadata.GPSInfo) {
+                        console.log('GPS info', metadata.GPSInfo);
                         dec = Dms2Dec(metadata.GPSInfo);
+                        console.log(`GPS ${dec}`);
                       }
                     }
                     mv(`${filepath}/${item}`, `${uploadPath}/original/${item}`, { mkdirp: true }, async (mvErr) => {
                       if (mvErr) throw mvErr;
-                      ResizeFile(`${uploadPath}/original/${item}`, `${uploadPath}/${item}`, 1440, async () => {
+                      const uniqFilename = `${uuid()}.jpg`;
+                      console.log('MV file done');
+                      ResizeFile(`${uploadPath}/original/${item}`, `${uploadPath}/${uniqFilename}`, 400, async () => {
+                        console.log(`Resize file ${uniqFilename}`);
                         files.push(item);
                         if (dec) {
                           context.metadata.geoData = {
@@ -122,7 +130,7 @@ export const dropbox = (parent, args, { req }) => checkRoleAndResolve(
                           };
                         }
                         context.file = {
-                          filename: item,
+                          filename: uniqFilename,
                         };
                         try {
                           await DataSet(context);
