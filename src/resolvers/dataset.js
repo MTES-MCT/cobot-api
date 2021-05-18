@@ -1,12 +1,22 @@
 /* eslint-disable no-underscore-dangle */
-import fs from 'fs';
+import fs, { copyFileSync } from 'fs';
+import csv from 'csv-parser';
 import path from 'path';
 import _ from 'lodash';
 import Promise from 'bluebird';
 import moment from 'moment';
 import eachSeries from 'async/eachSeries';
 import { Storage } from '@google-cloud/storage';
+import { AutoMlClient } from '@google-cloud/automl';
+import gm from 'gm';
+
 import { checkRoleAndResolve, checkAuthAndResolve, pubsub, withFilter, UPLOAD_PROGRESS, ADMIN, CONTRIBUTION_ADDED } from './common';
+
+const projectId = '244101471703';
+const location = 'us-central1';
+const datasetId = 'IOD5099573412532060160';
+
+const client = new AutoMlClient();
 
 const rawFieldToString = (row) => {
   row.metadata.raw = (row.metadata.raw) ? JSON.stringify(row.metadata.raw) : null;
@@ -25,6 +35,86 @@ const pusblishProgress = (data, uid) => {
     },
   );
 };
+
+const checkBoundingBox = (coords) => {
+  const outOfBox = _.find(coords, coord => coord < 0 || coord > 1);
+  if (outOfBox) {
+    return false;
+  }
+  return true;
+};
+
+const getOperationStatus = async (models, operation) => {
+  const request = {
+    name: operation,
+  };
+  const [response] = await client.operationsClient.getOperation(request);
+  try {
+    await models.Projects.updateOne(
+      {
+        'iaModels.operation': operation,
+      },
+      {
+        $set: {
+          'iaModels.$.status': (response.done) ? 'done' : 'progress',
+          'iaModels.$.updatedAt': moment().format('YYYY-MM-DD HH:mm:ss'),
+        },
+      },
+    );
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+const updateDataSet = async (models, localProjectId, uid) => {
+  const path = 'gs://ia-garbage-build/googleVisionFilename.csv';
+  const request = {
+    name: client.datasetPath(projectId, location, datasetId),
+    inputConfig: {
+      gcsSource: {
+        inputUris: path.split(','),
+      },
+    },
+  };
+  console.log('Proccessing import');
+  try {
+    const [operation] = await client.importData(request);
+    console.log(operation.name);
+    setTimeout(async () => {
+      pusblishProgress('Update dataset...', uid);
+      await models.Projects.findByIdAndUpdate({ _id: models.toObjectId(localProjectId) }, {
+        $push: {
+          iaModels: {
+            operation: operation.name,
+            status: 'progress',
+          },
+        },
+      });
+    }, 1000);
+  } catch (e) {
+    pusblishProgress('Error when processiong dataset...', uid);
+    console.log(e);
+  }
+};
+
+const getImageSize = (data, filer) => new Promise((resolve) => {
+  if (data.metadata.raw && data.metadata.raw.ImageWidth) {
+    return resolve({
+      width: data.metadata.raw.ImageWidth,
+      height: data.metadata.raw.ImageHeight,
+    });
+  }
+  const gmImageMagick = gm.subClass({ imageMagick: true });
+  gmImageMagick(`${filer}/${data.file}`)
+    .size((err, size) => {
+      if (!err) {
+        return resolve({
+          width: size.width,
+          height: size.height,
+        });
+      }
+    });
+});
 
 export const uploadProgress = {
   subscribe: withFilter(
@@ -49,13 +139,18 @@ export const DataSet = (parent, args, { models, req }) => checkAuthAndResolve(
     }
     if (args.projectId) {
       criteria['metadata.id'] = models.toObjectId(args.projectId);
+      // criteria['metadata.raw'] = { $ne: null };
     }
     if (args.id) {
       criteria._id = models.toObjectId(args.id);
     }
+    // criteria.file = '15d807b0-b72e-11eb-808c-7b37ec79eddf.jpg';
+
+    // console.log(criteria);
     const datas = await models.DataSet.aggregate()
       .match(criteria)
       .sample(100);
+    // console.log(datas);
     let data = _.find(datas, (d) => {
       // const uploadPath = (process.env.NODE_ENV === 'development') ?
       //  '../../uploads' : '../uploads';
@@ -65,6 +160,7 @@ export const DataSet = (parent, args, { models, req }) => checkAuthAndResolve(
         return d;
       }
     });
+    // console.log(datas);
     data = rawFieldToString(data);
     const orderedAvailableAnswers = _.sortBy(data.availableAnswers, ['order']);
     data.availableAnswers = orderedAvailableAnswers;
@@ -75,9 +171,22 @@ export const DataSet = (parent, args, { models, req }) => checkAuthAndResolve(
 export const DataSetBySource = (parent, args, { models, req }) => checkAuthAndResolve(
   req,
   async () => {
+    let criteria = null;
+    if (args.label) {
+      criteria = {
+        $text: { $search: args.label },
+      };
+    }
     const data = await models.DataSet.aggregate([
       {
         $match: {
+          usersAnswers: {
+            $elemMatch: {
+              answers: {
+                $regex: 'parkingpmr',
+              },
+            },
+          },
           'metadata.id': models.toObjectId(args.id),
         },
       },
@@ -110,6 +219,8 @@ export const DataSetBySource = (parent, args, { models, req }) => checkAuthAndRe
 export const DataSetNumLabel = (parent, args, { models, req }) => checkAuthAndResolve(
   req,
   async () => {
+    // getOperationStatus(models, 'projects/244101471703/locations/us-central1/operations/IOD1512740533087240192');
+    // return 'ok';
     const datas = await models.DataSet.find({
       $text: { $search: args.label },
       'metadata.id': models.toObjectId(args.projectId),
@@ -126,16 +237,6 @@ export const DataSetNumLabel = (parent, args, { models, req }) => checkAuthAndRe
       });
       resolve(`${datas.length} - exporté ${autoMLExported}`);
     });
-    // let dataset = 0;
-    // await Promise.map(datas, async (data) => {
-    //   // await models.DataSet.findOneAndUpdate({ _id: data._id }, { 'metadata.autoMLExported': false });
-    //   await Promise.map(data.usersAnswers, async (answer) => {
-    //     if (answer.answers.indexOf(args.label) > -1) {
-    //       dataset += 1;
-    //     }
-    //   });
-    // });
-    // return dataset;
   },
 );
 
@@ -229,33 +330,87 @@ export const dataSetAnswers = async (parent, args, { models, req }) => {
   return updatedUser;
 };
 
-export const dataDelete = (parent, args, { models, req }) => checkRoleAndResolve(
+export const dataDelete = (parent, args, { models, req }) => checkAuthAndResolve(
   req,
-  ADMIN,
   async () => {
+    const dataset = await models.DataSet.findOne({ _id: args.id });
+    await models.Users.findOneAndUpdate({ _id: dataset.user }, {
+      $pop: {
+        point: -1,
+      },
+    });
     await models.DataSet.remove({ _id: args.id });
   },
 );
 
+const setAutoMLCsvRow = async (data, label, filer) => {
+  const size = await getImageSize(data, filer);
+
+  const xmin = ((label.voc.xmin * 100) / size.width) / 100;
+  const ymin = ((label.voc.yminVoc * 100) / size.height) / 100;
+  const xmax = ((label.voc.xmax * 100) / size.width) / 100;
+  const ymax = ((label.voc.ymaxVoc * 100) / size.height) / 100;
+
+  if (checkBoundingBox([xmin, ymin, xmax, ymax])) {
+    return {
+      csv: `,gs://ia-garbage-build/${data.file},${label.label.id},${xmin},${ymin},,,${xmax},${ymax},,`,
+      data,
+    };
+  }
+  console.log('out of box');
+  return false;
+};
+
 export const AutoMLExport = (parent, args, { models, req }) => checkAuthAndResolve(
   req,
   async (user) => {
+    // console.log('updateDataSet');
+    // updateDataSet(models, args.projectId, user.id);
+    // return '[ok]';
+    // getOperationStatus('projects/244101471703/locations/us-central1/operations/IOD4554992450120187904');
+    // return '[ok]';
     pusblishProgress(`fetching ${args.label} files...`, user.id);
+    // const criteria = {
+    //   'metadata.id': models.toObjectId(args.projectId),
+    //   'metadata.autoMLExported': false,
+    //   $text: { $search: args.label },
+    //   'usersAnswers.0': { $exists: true },
+    // };
+    // let prepareLabelRegex = args.label.replace(/,/ig, '/,/');
+    // prepareLabelRegex = '/'.concat(prepareLabelRegex, '/');
+    // console.log(prepareLabelRegex);
+    const aLabels = args.label.split(',');
+    const regexLabels = args.label.replace(/,/gi, '|');
+
     const criteria = {
       'metadata.id': models.toObjectId(args.projectId),
-      'metadata.autoMLExported': false,
-      $text: { $search: args.label },
+      // file: 'e7e2bef0-dee7-11ea-8061-5b8f93e472ae.jpg',
+      // $or: [
+      //   {
+      //     'metadata.autoMLExported': false,
+      //   },
+      //   {
+      //     'metadata.autoMLExported': { $exists: false },
+      //   },
+      // ],
+      usersAnswers: {
+        $elemMatch: {
+          answers: {
+            $regex: regexLabels,
+          },
+        },
+      },
       'usersAnswers.0': { $exists: true },
     };
+    console.log(criteria);
     const uploadPath = '../../uploads';
     const filer = path.join(__dirname, uploadPath);
-    // const datas = await models.DataSet.find(criteria);
 
-    const datas = await models.DataSet.aggregate()
-      .match(criteria);
-
+    const datas = await models.DataSet.find(criteria);
+    console.log(datas.length);
+    // const datas = await models.DataSet.aggregate()
+    //   .match(criteria);
     const dataset = _.map(datas, rawFieldToString);
-
     try {
       const file = bucket.file('googleVisionFilename.csv');
       await file.download({
@@ -268,15 +423,16 @@ export const AutoMLExport = (parent, args, { models, req }) => checkAuthAndResol
       const csv = [];
       const selectedDatas = [];
       let num = 1;
+      console.log(aLabels);
       eachSeries(dataset, async (data, cb) => {
         if (fs.existsSync(`${filer}/${args.projectId}/${data.file}`)) {
           const file = bucket.file(data.file);
           const isFileExistsOnGC = await file.exists();
           console.log('file', data.file, isFileExistsOnGC[0]);
+          // const width = (data.metadata.raw.ImageWidth) ? data.metadata.raw.ImageWidth : 400;
+          // const height = (data.metadata.raw.ImageHeight) ? data.metadata.raw.ImageHeight : 300;
           if (isFileExistsOnGC && !isFileExistsOnGC[0]) {
-            console.log('file does\'nt exists on GC');
-            const width = (data.metadata.raw.ImageWidth) ? data.metadata.raw.ImageWidth : 400;
-            const height = (data.metadata.raw.ImageHeight) ? data.metadata.raw.ImageHeight : 300;
+            console.log(`file ${data.file} does\'nt exists on GC`);
             try {
               await bucket.upload(`${filer}/${args.projectId}/${data.file}`);
               await models.DataSet.findOneAndUpdate({ _id: data._id }, { 'metadata.autoMLExported': true });
@@ -284,19 +440,14 @@ export const AutoMLExport = (parent, args, { models, req }) => checkAuthAndResol
               num += 1;
               eachSeries(data.usersAnswers, async (answer, cbAnswer) => {
                 const label = JSON.parse(answer.answers);
-                if (label.label.id === args.label) {
-                  try {
+                if (label.label && (aLabels.indexOf(label.label.id) > -1)) {
+                  console.log(label.label.id);
+                  const row = await setAutoMLCsvRow(data, label, `${filer}/${args.projectId}`);
+                  if (row) {
                     selectedDatas.push(data);
-                    const xmin = ((label.voc.xmin * 100) / width) / 100;
-                    const ymin = ((label.voc.yminVoc * 100) / height) / 100;
-                    const xmax = ((label.voc.xmax * 100) / width) / 100;
-                    const ymax = ((label.voc.ymaxVoc * 100) / height) / 100;
-                    csv.push(`,gs://ia-garbage-build/${data.file},${label.label.id},${xmin},${ymin},,,${xmax},${ymax},,`);
-                    cbAnswer();
-                  } catch (e) {
-                    console.log(e);
-                    cbAnswer();
+                    csv.push(row.csv);
                   }
+                  cbAnswer();
                 } else {
                   cbAnswer();
                 }
@@ -309,15 +460,35 @@ export const AutoMLExport = (parent, args, { models, req }) => checkAuthAndResol
             }
           } else {
             console.log('file exists on GC');
-            cb();
+            eachSeries(data.usersAnswers, async (answer, cbAnswer) => {
+              const label = JSON.parse(answer.answers);
+              if (label.label && (aLabels.indexOf(label.label.id) > -1)) {
+                try {
+                  const row = await setAutoMLCsvRow(data, label, `${filer}/${args.projectId}`);
+                  if (row) {
+                    selectedDatas.push(data);
+                    csv.push(row.csv);
+                  }
+                  cbAnswer();
+                } catch (e) {
+                  console.log(e);
+                  cbAnswer();
+                }
+              } else {
+                cbAnswer();
+              }
+            }, () => {
+              cb();
+            });
           }
         } else {
           console.log('file does\'nt exists on this server');
           cb();
         }
       }, async () => {
+        console.log(csv);
+        fs.writeFileSync('/tmp/googleVisionFilename.csv', csv.join('\n'), 'binary');
         await bucket.upload('/tmp/googleVisionFilename.csv', { destination: `/csv/googleVisionFilename_${moment().format('YYYY_MM_DD_HH_mm_ss')}.csv` });
-        fs.appendFileSync('/tmp/googleVisionFilename.csv', csv.join('\n'), 'binary');
         await bucket.upload('/tmp/googleVisionFilename.csv');
         pusblishProgress('upload done !', user.id);
         console.log('done');
@@ -340,3 +511,60 @@ export const CountDataSetBySource = (parent, args, { models, req }) => checkAuth
     }
   },
 );
+
+export const checkAutoMLFiles = (parent, args, { models, req }) => checkAuthAndResolve(
+  req,
+  async () => {
+    try {
+      const results = [];
+      const file = bucket.file('googleVisionFilename.csv');
+      await file.download({
+        destination: '/tmp/googleVisionFilename.csv',
+      });
+      return new Promise(async (resolve, reject) => {
+        fs.createReadStream('/tmp/googleVisionFilename.csv')
+          .pipe(csv({ headers: false, separator: ',' }))
+          .on('data', data => results.push(data))
+          .on('end', () => {
+            const cleanCsv = [];
+            const num = results.length;
+            let i = 1;
+            eachSeries(results, async (row, cb) => {
+              try {
+                const basename = row[1].replace(/gs:\/\/ia-garbage-build\//ig, '');
+                const file = bucket.file(basename);
+                const isFileExistsOnGC = await file.exists();
+                if (isFileExistsOnGC[0]) {
+                  if (checkBoundingBox([row[3], row[4], row[7], row[8]])) {
+                    console.log(`${i}/${num}`, basename, isFileExistsOnGC[0]);
+                    cleanCsv.push(`,gs://ia-garbage-build/${basename},${row[2]},${row[3]},${row[4]},,,${row[7]},${row[8]},,`);
+                  } else {
+                    console.log(`${i}/${num}`, basename, `${row[2]},${row[3]},${row[4]},${row[7]},${row[8]}`, 'OUTOFBOX');
+                  }
+                } else {
+                  console.log(`${i}/${num}`, basename, isFileExistsOnGC[0], 'DO NOT EXISTS');
+                }
+                i += 1;
+              } catch (e) {
+                console.log(e);
+              }
+              cb();
+            }, async () => {
+              // console.log(cleanCsv.join('\n'));
+              fs.writeFileSync('/tmp/googleVisionFilename.csv', cleanCsv.join('\n'), 'binary');
+              try {
+                const csvFileUpload = await bucket.upload('/tmp/googleVisionFilename.csv');
+                console.log(csvFileUpload);
+              } catch (e) {
+                console.log(e);
+              }
+              resolve('ok');
+            });
+          });
+      });
+    } catch (e) {
+      console.log(e);
+    }
+  },
+);
+
