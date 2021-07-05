@@ -11,8 +11,24 @@ const projectsSchema = mongoose.Schema({
   }],
   labels: [{
     text: String,
+    img: String,
     order: Number,
+    properties: [{
+      name: String,
+      val_1: String,
+      val_2: String,
+      val_3: String,
+    }],
   }],
+  iaModels: [
+    {
+      name: String,
+      operation: String,
+      status: String,
+      createdAt: { type: Date, default: Date.now },
+      updatedAt: { type: Date, default: Date.now },
+    },
+  ],
 }, {
   collection: 'projects',
 });
