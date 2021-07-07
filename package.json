@@ -5,6 +5,7 @@
   "description": "Jeu d'APIs pour Co-Construisons",
   "keywords": [],
   "dependencies": {
+    "@google-cloud/automl": "^2.2.0",
     "@google-cloud/storage": "^5.3.0",
     "apollo-errors": "^1.7.1",
     "archiver": "^3.1.1",
@@ -15,6 +16,7 @@
     "bluebird": "^3.5.1",
     "body-parser": "^1.18.2",
     "cors": "^2.8.4",
+    "csv-parser": "^2.3.3",
     "dms2dec": "^1.1.0",
     "dotenv": "^6.0.0",
     "express": "^4.16.3",

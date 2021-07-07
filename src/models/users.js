@@ -5,6 +5,14 @@ const usersSchema = mongoose.Schema({
   password: String,
   name: String,
   reminder: Date,
+  birthday: Date,
+  photo: String,
+  city: String,
+  point: [{
+    num: Number,
+    createdAt: Date,
+    object: String,
+  }],
   role: {
     type: Number,
     validate: {
@@ -39,6 +47,7 @@ const usersSchema = mongoose.Schema({
         message: '{VALUE} should be 1, 80 or 100',
       },
     },
+    isPro: Boolean,
     question: String,
     answers: [{
       id: {

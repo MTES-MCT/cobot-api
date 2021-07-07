@@ -311,6 +311,17 @@ const Dms2Dec = (GPSInfo) => {
   return null;
 };
 
+const ObjectDetection = async (file) => {
+  const objectDetectionAPI = 'http://46.101.22.14:4001/object-detections/detection';
+  try {
+    const results = await axios.get(`${objectDetectionAPI}?photo=${file}`);
+    return results;
+  } catch (e) {
+    console.log(e);
+    return [];
+  }
+};
+
 module.exports = {
   Auth,
   User,
@@ -320,4 +331,5 @@ module.exports = {
   Dms2Dec,
   Unzip,
   ExportData,
+  ObjectDetection,
 };

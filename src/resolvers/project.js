@@ -14,9 +14,8 @@ export const Project = (parent, args, { models, req }) => checkRoleAndResolve(
   },
 );
 
-export const ProjectContributors = (parent, args, { models, req }) => checkRoleAndResolve(
+export const ProjectContributors = (parent, args, { models, req }) => checkAuthAndResolve(
   req,
-  ADMIN,
   async () => {
     const contributors = await models.Users.aggregate([
       {
@@ -36,6 +35,8 @@ export const ProjectContributors = (parent, args, { models, req }) => checkRoleA
         },
       ]);
       contributor.labels = labels.length;
+      contributor.project = _.find(contributor.projects, { id: models.toObjectId(args.id) });
+      contributor.project.isPro = contributor.project.isPro || false;
     });
     return contributors;
   },

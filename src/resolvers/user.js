@@ -2,6 +2,7 @@
 import bcrypt from 'bcrypt';
 import Promise from 'bluebird';
 import jwt from 'jsonwebtoken';
+import _ from 'lodash';
 import { checkAuthAndResolve, checkRoleAndResolve, AUTH_SUPERADMIN } from './common';
 
 export const Me = (parent, args, { models, req }) => checkAuthAndResolve(
@@ -123,7 +124,7 @@ export const updateUser = async (parent, args, { models, req }) => {
   }
 
   const updatedUser = await checkAuthAndResolve(req, userJwt =>
-    models.Users.findByIdAndUpdate(userJwt.id, user));
+    models.Users.findByIdAndUpdate(userJwt.id, user, { new: true }));
 
   if (bot) {
     await checkAuthAndResolve(req, userJwt =>
@@ -134,6 +135,20 @@ export const updateUser = async (parent, args, { models, req }) => {
       }));
   }
 
+  return updatedUser;
+};
+
+export const updateUserPoint = async (parent, args, { models, req }) => {
+  const { point } = args;
+  console.log('point', point);
+  const updatedUser = await checkAuthAndResolve(req, userJwt =>
+    models.Users.findByIdAndUpdate(userJwt.id, {
+      $push: {
+        point,
+      },
+    }, {
+      new: true,
+    }));
   return updatedUser;
 };
 
@@ -199,6 +214,31 @@ export const updateUserProjectsRole = async (parent, args, { models, req }) => {
   );
   return user;
 };
+
+export const userRanking = (parent, args, { models, req }) => checkAuthAndResolve(
+  req,
+  async () => {
+    const contributors = await models.Users.aggregate([
+      {
+        $match: {
+          'projects.id': models.toObjectId(args.id),
+        },
+      },
+    ]);
+
+    return contributors;
+  },
+);
+
+export const userPhotos = (parent, args, { models, req }) => checkAuthAndResolve(
+  req,
+  async (userJwt) => {
+    const photo = await models.DataSet.find({
+      user: userJwt.id,
+    });
+    return photo;
+  },
+);
 
 export const authorization = async (parent, { email, password }, { models }) => {
   const user = await models.Users.findOne({ email });

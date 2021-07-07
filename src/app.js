@@ -97,11 +97,23 @@ app.use(
 app.post('/upload', upload.single('file'), async (req, res) => {
   controllers.moveFile('../../uploads/', `../../uploads/${req.body.projectId}`, req.file.filename, async (err) => {
     if (err) throw err;
+    if (req.body.profil) {
+      return res.status(201).send({ filename: req.file.filename });
+    }
     const newDataset = await controllers.DataSet(req.body);
     return res.status(201).send(newDataset);
   });
 });
 
+app.get('/object-detections', async (req, res) => {
+  try {
+    const results = await controllers.ObjectDetection(req.query.photo);
+    res.send(results.data);
+  } catch (error) {
+    Logger.log('error', error);
+    res.sendStatus(401);
+  }
+});
 // app.post('/dropbox', (req, res) => {
 //   if (req.body.url && req.body.url.indexOf('dropbox') > -1) {
 //     controllers.DataSetFromDropbox(req, (files => res.status(201).send(files)));

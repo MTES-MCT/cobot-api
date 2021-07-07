@@ -2,20 +2,23 @@ import {
   AutoLogin,
   Me,
   User,
+  userPhotos,
   Users,
   WakeUpUsers,
   createUser,
   updateUser,
+  updateUserPoint,
   updateUserPassword,
   updateUserActivity,
   updateUserReminder,
   updateUserProjects,
   updateUserProjectsRole,
+  userRanking,
   authorization,
   loginByBot,
 } from './user';
 import Actions from './action';
-import { AutoMLExport, DataSet, DataSetBySource, DataSetStats, dataSetAnswers, dataDelete, DataSetNumLabel, CountDataSetBySource } from './dataset';
+import { AutoMLExport, checkAutoMLFiles, DataSet, DataSetBySource, DataSetStats, dataSetAnswers, dataDelete, DataSetNumLabel, CountDataSetBySource } from './dataset';
 import { Messages, Message, updateMessage, deleteMessage } from './messages';
 import {
   Project,
@@ -36,7 +39,9 @@ export default {
     AutoLogin,
     Me,
     User,
+    userPhotos,
     Users,
+    userRanking,
     WakeUpUsers,
 
     Actions,
@@ -47,6 +52,7 @@ export default {
     DataSetStats,
     DataSetNumLabel,
     CountDataSetBySource,
+    checkAutoMLFiles,
 
     Messages,
     Message,
@@ -60,6 +66,7 @@ export default {
     dropbox,
 
     updateUser,
+    updateUserPoint,
     updateUserPassword,
     updateUserActivity,
     updateUserReminder,

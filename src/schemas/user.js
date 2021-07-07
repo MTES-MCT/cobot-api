@@ -4,6 +4,10 @@ export default `
     email: String
     password: String
     name: String
+    birthday: String,
+    photo: String,
+    city: String,
+    point: [Point]
     role: Int
     token: String
     reminder: String
@@ -13,12 +17,26 @@ export default `
     projects: [UserProjects]
     photos: Int
     labels: Int
+    project: UserProjects
+  }
+
+  type Point {
+    num: Int
+    createdAt: String
+    object: String
+  }
+
+  input PointInput {
+    num: Int
+    createdAt: String
+    object: String
   }
 
   type UserProjects {
     id: ID!
     name: String
     role: Int
+    isPro: Boolean
     question: String
     answers: [Answer]
   }
@@ -26,6 +44,7 @@ export default `
   input UserProjectsInput {
     id: ID!
     role: Int
+    isPro: Boolean
   }
 
   type UserActivity {

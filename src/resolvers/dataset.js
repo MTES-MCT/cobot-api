@@ -144,7 +144,7 @@ export const DataSet = (parent, args, { models, req }) => checkAuthAndResolve(
     if (args.id) {
       criteria._id = models.toObjectId(args.id);
     }
-    // criteria.file = '15d807b0-b72e-11eb-808c-7b37ec79eddf.jpg';
+    // criteria.file = 'b58a7eb0-b719-11eb-983b-05080bf8aa47.jpg ';
 
     // console.log(criteria);
     const datas = await models.DataSet.aggregate()
@@ -339,7 +339,7 @@ export const dataDelete = (parent, args, { models, req }) => checkAuthAndResolve
         point: -1,
       },
     });
-    await models.DataSet.remove({ _id: args.id });
+    await models.DataSet.deleteOne({ _id: args.id });
   },
 );
 
