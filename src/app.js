@@ -43,7 +43,6 @@ const router = express.Router();
 // Front-End authentication mecanism require a response in header.
 router.post('/login', async (req, res) => {
   try {
-    console.log(req.body);
     const auth = await controllers.Auth(req.body.email, req.body.password);
     res.set('Authorization', auth.token);
     res.send(200, { user: auth.user });
@@ -102,6 +101,13 @@ app.post('/upload', upload.single('file'), async (req, res) => {
     }
     const newDataset = await controllers.DataSet(req.body);
     return res.status(201).send(newDataset);
+  });
+});
+
+app.post('/upload-label', upload.single('file'), async (req, res) => {
+  controllers.moveFile('../../uploads/', `../../uploads/labels/${req.body.type}`, req.file.filename, async (err) => {
+    if (err) throw err;
+    return res.status(201).send({ type: req.body.type, filename: req.file.filename });
   });
 });
 

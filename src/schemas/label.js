@@ -1,9 +1,13 @@
 export default `
   type Label {
     _id: ID!
+    uid: String!
     text: String!
     order: Int!
     img: String
+    photo: String
+    icon: String
+    isObstacle: Boolean
     properties: [Properties]
   }
   
@@ -25,6 +29,8 @@ export default `
     text: String!
     order: Int!
     img: String
+    photo: String
+    icon: String
     properties: [PropertiesInput]
   }
 `;

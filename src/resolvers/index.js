@@ -30,6 +30,13 @@ import {
   updateProject,
 } from './project';
 
+import {
+  Labels,
+  createLabel,
+  updateLabel,
+  labelDelete,
+} from './labels';
+
 import { dropbox, uploadProgress } from './upload';
 
 import contributionAdded from './contribution';
@@ -53,6 +60,8 @@ export default {
     DataSetNumLabel,
     CountDataSetBySource,
     checkAutoMLFiles,
+
+    Labels,
 
     Messages,
     Message,
@@ -87,6 +96,10 @@ export default {
     createProjectContributor,
     deleteProjectContributor,
     updateProject,
+
+    createLabel,
+    updateLabel,
+    labelDelete,
   },
   Subscription: {
     contributionAdded,

@@ -7,6 +7,7 @@ import Logger from '../utils/logger';
 import Users from './users';
 import DataSet from './dataset';
 import Projects from './projects';
+import Labels from './labels';
 import * as Messages from './messages';
 
 
@@ -37,6 +38,7 @@ if (process.env.NODE_ENV === 'development') {
         exports.Messages = Messages.Message;
         exports.Users = Users;
         exports.Projects = Projects;
+        exports.Labels = Labels;
 
         // utils
         exports.toObjectId = string => mongoose.Types.ObjectId(string);
@@ -59,6 +61,7 @@ if (process.env.NODE_ENV === 'development') {
       exports.Messages = Messages.Message;
       exports.Users = Users;
       exports.Projects = Projects;
+      exports.Labels = Labels;
 
       // utils
       exports.toObjectId = string => mongoose.Types.ObjectId(string);

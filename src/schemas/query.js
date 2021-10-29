@@ -19,5 +19,6 @@ export default `
     Users(limit: Int): [User]
     WakeUpUsers(lastAnswers: String): [User]
     userRanking(id: ID!): [User]
+    Labels: [Label]
   }
 `;
