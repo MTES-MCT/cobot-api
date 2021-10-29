@@ -26,11 +26,9 @@ export default `
   }
 
   input LabelInput {
+    _id: ID!,
     text: String!
     order: Int!
-    img: String
-    photo: String
-    icon: String
     properties: [PropertiesInput]
   }
 `;

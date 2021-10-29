@@ -10,8 +10,8 @@ const projectsSchema = mongoose.Schema({
     order: Number,
   }],
   labels: [{
+    id: mongoose.Schema.Types.ObjectId,
     text: String,
-    img: String,
     order: Number,
     properties: [{
       name: String,
