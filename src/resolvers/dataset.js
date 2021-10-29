@@ -139,28 +139,26 @@ export const DataSet = (parent, args, { models, req }) => checkAuthAndResolve(
     }
     if (args.projectId) {
       criteria['metadata.id'] = models.toObjectId(args.projectId);
-      // criteria['metadata.raw'] = { $ne: null };
     }
     if (args.id) {
       criteria._id = models.toObjectId(args.id);
     }
-    // criteria.file = 'b58a7eb0-b719-11eb-983b-05080bf8aa47.jpg ';
-
-    // console.log(criteria);
     const datas = await models.DataSet.aggregate()
       .match(criteria)
+      .lookup({
+        from: 'users',
+        localField: 'user',
+        foreignField: '_id',
+        as: 'user_doc',
+      })
       .sample(100);
-    // console.log(datas);
     let data = _.find(datas, (d) => {
-      // const uploadPath = (process.env.NODE_ENV === 'development') ?
-      //  '../../uploads' : '../uploads';
       const uploadPath = '../../uploads';
       const filer = path.join(__dirname, uploadPath);
       if (fs.existsSync(`${filer}/${args.projectId}/${d.file}`)) {
         return d;
       }
     });
-    // console.log(datas);
     data = rawFieldToString(data);
     const orderedAvailableAnswers = _.sortBy(data.availableAnswers, ['order']);
     data.availableAnswers = orderedAvailableAnswers;
