@@ -1,5 +1,6 @@
 export default `
   type Label {
+    _id: ID!
     text: String!
     order: Int!
     img: String

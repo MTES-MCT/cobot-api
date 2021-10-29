@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 const datasetSchema = mongoose.Schema({
   file: String,
   question: String,
+  // user: { type: mongoose.Schema.Types.ObjectId, ref: 'users' },
   user: mongoose.Schema.Types.ObjectId,
   metadata: {
     source: String,
@@ -23,6 +24,7 @@ const datasetSchema = mongoose.Schema({
     answers: String,
     createdAt: Date,
   }],
+  user_doc: { type: mongoose.Schema.Types.ObjectId, ref: 'users' },
 }, {
   collection: 'dataset',
 });

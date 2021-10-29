@@ -1,6 +1,6 @@
 export default `
   type User {
-    id: ID!
+    _id: ID!
     email: String
     password: String
     name: String
@@ -39,6 +39,7 @@ export default `
     isPro: Boolean
     question: String
     answers: [Answer]
+    labels: [Label]
   }
 
   input UserProjectsInput {

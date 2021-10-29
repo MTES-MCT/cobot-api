@@ -19,6 +19,7 @@ export const Me = (parent, args, { models, req }) => checkAuthAndResolve(
           role: project.role,
           question: projectDetails.question,
           answers: projectDetails.answers,
+          labels: projectDetails.labels,
         });
       }
     });

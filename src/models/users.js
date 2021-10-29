@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 
 const usersSchema = mongoose.Schema({
+  _id: { type: mongoose.Schema.Types.ObjectId },
   email: { type: String, unique: true },
   password: String,
   name: String,
@@ -56,6 +57,17 @@ const usersSchema = mongoose.Schema({
       },
       text: String,
       order: Number,
+    }],
+    labels: [{
+      text: String,
+      img: String,
+      order: Number,
+      properties: [{
+        name: String,
+        val_1: String,
+        val_2: String,
+        val_3: String,
+      }],
     }],
   }],
   lastConnection: { type: Date, default: null },

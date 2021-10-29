@@ -5,16 +5,16 @@ export default `
     AutoMLExport(projectId: ID!, label: String): [DataSet]
     checkAutoMLFiles: String
     DataSet(projectId: ID!, id: ID, notAnswered: Boolean): DataSet
-    DataSetBySource(id: ID!, offset: Int, limit: Int, label: String): [DataSet]
+    DataSetBySource(id: ID!, user: ID, label: String, offset: Int, limit: Int, label: String): [DataSet]
     DataSetStats(id: ID!): Statistics
     DataSetNumLabel(projectId: ID!, label: String!): String
-    CountDataSetBySource(projectId: ID!): Int
+    CountDataSetBySource(projectId: ID!, user: ID, label: String): Int
     Me: User
     userPhotos: [DataSet]
     Messages: [Message]
     Message(name: String, id: ID): Message
     Project(id: ID!): Project
-    ProjectContributors(id: ID!): [User]
+    ProjectContributors(projectId: ID!): [User]
     User(id: ID!): User
     Users(limit: Int): [User]
     WakeUpUsers(lastAnswers: String): [User]

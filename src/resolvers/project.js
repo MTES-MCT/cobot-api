@@ -1,3 +1,5 @@
+import fs from 'fs';
+import path from 'path';
 import bcrypt from 'bcrypt';
 import _ from 'lodash';
 import Promise from 'bluebird';
@@ -20,7 +22,7 @@ export const ProjectContributors = (parent, args, { models, req }) => checkAuthA
     const contributors = await models.Users.aggregate([
       {
         $match: {
-          'projects.id': models.toObjectId(args.id),
+          'projects.id': models.toObjectId(args.projectId),
         },
       },
     ]);
@@ -35,7 +37,7 @@ export const ProjectContributors = (parent, args, { models, req }) => checkAuthA
         },
       ]);
       contributor.labels = labels.length;
-      contributor.project = _.find(contributor.projects, { id: models.toObjectId(args.id) });
+      contributor.project = _.find(contributor.projects, { id: models.toObjectId(args.projectId) });
       contributor.project.isPro = contributor.project.isPro || false;
     });
     return contributors;
@@ -54,6 +56,8 @@ export const createProject = async (parent, args, { models, req }) => checkAuthA
       owner: user.id,
     };
     try {
+      const uploadPath = '../../uploads';
+      const filer = path.join(__dirname, uploadPath);
       const newProject = await models.Projects.create(project);
       await models.Users.findByIdAndUpdate(user.id, {
         $push: {
@@ -63,6 +67,12 @@ export const createProject = async (parent, args, { models, req }) => checkAuthA
           },
         },
       });
+
+      if (!fs.existsSync(`${filer}/${newProject._id}`)) {
+        fs.mkdirSync(`${filer}/${newProject._id}`);
+        fs.mkdirSync(`${filer}/${newProject._id}/profil`, { recursive: true });
+        fs.mkdirSync(`${filer}/${newProject._id}/labels`, { recursive: true });
+      }
 
       return newProject;
     } catch (error) {

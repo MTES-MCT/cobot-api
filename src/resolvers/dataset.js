@@ -171,24 +171,24 @@ export const DataSet = (parent, args, { models, req }) => checkAuthAndResolve(
 export const DataSetBySource = (parent, args, { models, req }) => checkAuthAndResolve(
   req,
   async () => {
-    let criteria = null;
+    const criteria = {
+      'metadata.id': models.toObjectId(args.id),
+    };
+    if (args.user) {
+      criteria.user = models.toObjectId(args.user);
+    }
     if (args.label) {
-      criteria = {
-        $text: { $search: args.label },
+      criteria.usersAnswers = {
+        $elemMatch: {
+          answers: {
+            $regex: args.label,
+          },
+        },
       };
     }
     const data = await models.DataSet.aggregate([
       {
-        $match: {
-          usersAnswers: {
-            $elemMatch: {
-              answers: {
-                $regex: 'parkingpmr',
-              },
-            },
-          },
-          'metadata.id': models.toObjectId(args.id),
-        },
+        $match: criteria,
       },
       {
         $project: {
@@ -196,11 +196,20 @@ export const DataSetBySource = (parent, args, { models, req }) => checkAuthAndRe
           file: 1,
           usersAnswers: 1,
           metadata: 1,
+          user: 1,
           numAnswers: {
             $size: {
               $ifNull: ['$usersAnswers', []],
             },
           },
+        },
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'user',
+          foreignField: '_id',
+          as: 'user_doc',
         },
       },
       {
@@ -501,10 +510,23 @@ export const AutoMLExport = (parent, args, { models, req }) => checkAuthAndResol
 export const CountDataSetBySource = (parent, args, { models, req }) => checkAuthAndResolve(
   req,
   async () => {
+    const criteria = {
+      'metadata.id': models.toObjectId(args.projectId),
+    };
+    if (args.user) {
+      criteria.user = models.toObjectId(args.user);
+    }
+    if (args.label) {
+      criteria.usersAnswers = {
+        $elemMatch: {
+          answers: {
+            $regex: args.label,
+          },
+        },
+      };
+    }
     try {
-      const num = await models.DataSet.countDocuments({
-        'metadata.id': models.toObjectId(args.projectId),
-      });
+      const num = await models.DataSet.countDocuments(criteria);
       return num;
     } catch (e) {
       console.log(e);
