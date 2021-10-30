@@ -39,6 +39,7 @@ export const updateLabel = (parent, args, { models, req }) => checkRoleAndResolv
       photo: args.photo,
       icon: args.icon,
       isObstacle: args.isObstacle,
+      properties: args.properties || [],
     };
     try {
       const updatedLabel = await models.Labels.findOneAndUpdate({ _id: models.toObjectId(args.id) }, label, { new: true });

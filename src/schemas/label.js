@@ -26,7 +26,7 @@ export default `
   }
 
   input LabelInput {
-    _id: ID!,
+    _id: ID,
     text: String!
     order: Int!
     properties: [PropertiesInput]

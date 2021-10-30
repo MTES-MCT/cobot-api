@@ -159,10 +159,13 @@ export const DataSet = (parent, args, { models, req }) => checkAuthAndResolve(
         return d;
       }
     });
-    data = rawFieldToString(data);
-    const orderedAvailableAnswers = _.sortBy(data.availableAnswers, ['order']);
-    data.availableAnswers = orderedAvailableAnswers;
-    return data;
+    if (data) {
+      data = rawFieldToString(data);
+      const orderedAvailableAnswers = _.sortBy(data.availableAnswers, ['order']);
+      data.availableAnswers = orderedAvailableAnswers;
+      return data;
+    }
+    return null;
   },
 );
 

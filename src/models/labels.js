@@ -7,6 +7,12 @@ const labelsSchema = mongoose.Schema({
   photo: String,
   icon: String,
   isObstacle: Boolean,
+  properties: [{
+    name: String,
+    val_1: String,
+    val_2: String,
+    val_3: String,
+  }],
 }, {
   collection: 'labels',
 });
