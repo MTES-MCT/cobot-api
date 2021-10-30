@@ -13,13 +13,33 @@ export const Me = (parent, args, { models, req }) => checkAuthAndResolve(
     await Promise.map(user.projects, async (project) => {
       const projectDetails = await models.Projects.findById(project.id);
       if (projectDetails) {
+        const projectLabels = [];
+        if (projectDetails.labels) {
+          await Promise.map(projectDetails.labels, async (label) => {
+            const l = {};
+            const labelDetails = await models.Labels.findOne({
+              _id: models.toObjectId(label._id),
+            });
+            if (labelDetails) {
+              l._id = label._id;
+              l.text = labelDetails.text;
+              l.icon = labelDetails.icon;
+              l.photo = labelDetails.photo;
+              l.order = label.order;
+              l.properties = label.properties;
+              projectLabels.push(l);
+            } else {
+              projectLabels.push(label);
+            }
+          });
+        }
         userProjectDetails.push({
           id: project.id,
           name: projectDetails.name,
           role: project.role,
           question: projectDetails.question,
           answers: projectDetails.answers,
-          labels: projectDetails.labels,
+          labels: projectLabels,
         });
       }
     });

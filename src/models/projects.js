@@ -10,7 +10,7 @@ const projectsSchema = mongoose.Schema({
     order: Number,
   }],
   labels: [{
-    id: mongoose.Schema.Types.ObjectId,
+    id: { type: mongoose.Schema.Types.ObjectId, ref: 'Labels' },
     text: String,
     order: Number,
     properties: [{

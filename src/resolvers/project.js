@@ -12,6 +12,21 @@ export const Project = (parent, args, { models, req }) => checkRoleAndResolve(
     const project = await models.Projects.findOne({
       _id: models.toObjectId(args.id),
     });
+    await Promise.map(project.labels, async (label, index) => {
+      const l = {};
+      const labelDetails = await models.Labels.findOne({
+        _id: models.toObjectId(label._id),
+      });
+      if (labelDetails) {
+        l._id = label._id;
+        l.text = labelDetails.text;
+        l.icon = labelDetails.icon;
+        l.photo = labelDetails.photo;
+        l.order = label.order;
+        l.properties = label.properties;
+        project.labels[index] = l;
+      }
+    });
     return project;
   },
 );

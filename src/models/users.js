@@ -59,8 +59,10 @@ const usersSchema = mongoose.Schema({
       order: Number,
     }],
     labels: [{
+      _id: mongoose.Schema.Types.ObjectId,
       text: String,
-      img: String,
+      photo: String,
+      icon: String,
       order: Number,
       properties: [{
         name: String,
