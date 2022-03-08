@@ -29,6 +29,8 @@ export default `
     _id: ID,
     text: String!
     order: Int!
+    icon: String
+    photo: String
     properties: [PropertiesInput]
   }
 `;
