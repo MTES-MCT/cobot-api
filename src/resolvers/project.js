@@ -40,6 +40,12 @@ export const ProjectContributors = (parent, args, { models, req }) => checkAuthA
           'projects.id': models.toObjectId(args.projectId),
         },
       },
+      {
+        $sort: {
+          name: 1,
+          email: 1,
+        },
+      },
     ]);
     await Promise.map(contributors, async (contributor) => {
       contributor.photos = await models.DataSet.count({ user: models.toObjectId(contributor._id) });
