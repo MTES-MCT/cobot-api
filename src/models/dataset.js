@@ -21,7 +21,9 @@ const datasetSchema = mongoose.Schema({
   }],
   usersAnswers: [{
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'Users' },
-    answers: String,
+    answers: {
+      type: String, text: true,
+    },
     createdAt: Date,
   }],
   user_doc: { type: mongoose.Schema.Types.ObjectId, ref: 'users' },
