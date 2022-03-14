@@ -312,7 +312,7 @@ const Dms2Dec = (GPSInfo) => {
 };
 
 const ObjectDetection = async (file) => {
-  const objectDetectionAPI = 'http://46.101.22.14:4001/object-detections/detection';
+  const objectDetectionAPI = 'https://juicer-ia-api.wawy.io/object-detections/detection';
   try {
     const results = await axios.get(`${objectDetectionAPI}?photo=${file}`);
     return results;
