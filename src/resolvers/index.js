@@ -18,7 +18,7 @@ import {
   loginByBot,
 } from './user';
 import Actions from './action';
-import { AutoMLExport, checkAutoMLFiles, DataSet, DataSetBySource, DataSetStats, dataSetAnswers, dataDelete, DataSetNumLabel, CountDataSetBySource } from './dataset';
+import { AutoMLExport, checkAutoMLFiles, DataSet, DataSetBySource, DataSetByRadius, DataSetStats, dataSetAnswers, dataDelete, DataSetNumLabel, CountDataSetBySource } from './dataset';
 import { Messages, Message, updateMessage, deleteMessage } from './messages';
 import {
   Project,
@@ -56,6 +56,7 @@ export default {
     AutoMLExport,
     DataSet,
     DataSetBySource,
+    DataSetByRadius,
     DataSetStats,
     DataSetNumLabel,
     CountDataSetBySource,

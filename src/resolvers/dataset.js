@@ -129,7 +129,8 @@ const bucket = storage.bucket('ia-garbage-build');
 export const DataSet = (parent, args, { models, req }) => checkAuthAndResolve(
   req,
   async (user) => {
-    let criteria = {};
+    let criteria = {
+    };
     if (args.notAnswered) {
       criteria = {
         'usersAnswers.userId': {
@@ -225,6 +226,52 @@ export const DataSetBySource = (parent, args, { models, req }) => checkAuthAndRe
     return dataset;
   },
 );
+
+export const DataSetByRadius = async (parent, args, { models }) => {
+  // const radius = 10000 / 3963; // convert distance of KM in
+  // const loc = [-0.3599303, 45.0628914];
+  // const dataset = await models.DataSet.find({
+  //   'metadata.geoData.location.coordinates': {
+  //     $geoWithin: {
+  //       $centerSphere: [loc, radius],
+  //     },
+  //   },
+  // });
+  console.log(args.radius);
+  const data = await models.DataSet.aggregate([
+    {
+      $project: {
+        _id: 1,
+        file: 1,
+        usersAnswers: 1,
+        metadata: 1,
+        user: 1,
+        numAnswers: {
+          $size: {
+            $ifNull: ['$usersAnswers', []],
+          },
+        },
+      },
+    },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'user',
+        foreignField: '_id',
+        as: 'user_doc',
+      },
+    },
+    {
+      $sort: {
+        'metadata.geoData.createdAt': -1,
+      },
+    },
+  ])
+    .skip(args.offset)
+    .limit(args.limit);
+  const dataset = _.map(data, rawFieldToString);
+  return dataset;
+};
 
 export const DataSetNumLabel = (parent, args, { models, req }) => checkAuthAndResolve(
   req,
@@ -362,8 +409,9 @@ const setAutoMLCsvRow = async (data, label, filer) => {
   const ymax = ((label.voc.ymaxVoc * 100) / size.height) / 100;
 
   if (checkBoundingBox([xmin, ymin, xmax, ymax])) {
+    const labelName = (label.label._id === '62276c3c73a7332a00405da5') ? 'yego' : label.label.id;
     return {
-      csv: `,gs://ia-garbage-build/${data.file},${label.label.id},${xmin},${ymin},,,${xmax},${ymax},,`,
+      csv: `,gs://ia-garbage-build/${data.file},${labelName},${xmin},${ymin},,,${xmax},${ymax},,`,
       data,
     };
   }
@@ -472,7 +520,7 @@ export const AutoMLExport = (parent, args, { models, req }) => checkAuthAndResol
             console.log('file exists on GC');
             eachSeries(data.usersAnswers, async (answer, cbAnswer) => {
               const label = JSON.parse(answer.answers);
-              if (label.label && (aLabels.indexOf(label.label.id) > -1)) {
+              if (label.label && (aLabels.indexOf(label.label.id) > -1 || aLabels.indexOf(label.label._id) > -1)) {
                 try {
                   const row = await setAutoMLCsvRow(data, label, `${filer}/${args.projectId}`);
                   if (row) {
