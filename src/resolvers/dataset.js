@@ -228,17 +228,15 @@ export const DataSetBySource = (parent, args, { models, req }) => checkAuthAndRe
 );
 
 export const DataSetByRadius = async (parent, args, { models }) => {
-  // const radius = 10000 / 3963; // convert distance of KM in
-  // const loc = [-0.3599303, 45.0628914];
-  // const dataset = await models.DataSet.find({
-  //   'metadata.geoData.location.coordinates': {
-  //     $geoWithin: {
-  //       $centerSphere: [loc, radius],
-  //     },
-  //   },
-  // });
-  console.log(args.radius);
   const data = await models.DataSet.aggregate([
+    {
+      $geoNear: {
+        near: { type: "Point", coordinates: [ 45.0628914, -0.3599303 ] },
+        distanceField: "metadata.distance",
+        maxDistance: args.radius,
+        spherical: true,
+      },
+    },
     {
       $project: {
         _id: 1,

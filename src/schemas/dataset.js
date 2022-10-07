@@ -20,5 +20,6 @@ export default `
     originalWidth: Int
     originalHeight: Int
     originalOrientation: Int
+    distance: Float
   }
 `;
