@@ -3,6 +3,8 @@ import mongoose from 'mongoose';
 const datasetSchema = mongoose.Schema({
   file: String,
   question: String,
+  class: String,
+  isObstacle: Boolean,
   // user: { type: mongoose.Schema.Types.ObjectId, ref: 'users' },
   user: mongoose.Schema.Types.ObjectId,
   metadata: {

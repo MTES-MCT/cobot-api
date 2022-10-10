@@ -10,6 +10,8 @@ export default `
     availableAnswers: [Answer]
     usersAnswers: [UserAnswer]
     numAnswers: Int
+    class: String
+    isObstacle: String
   }
 
   type Metadata {
