@@ -116,17 +116,23 @@ export const createUser = async (parent, args, { models }) => {
   }
   user.password = await bcrypt.hash(user.password, 12);
   try {
-    const newUser = await models.Users.findOneAndUpdate({
-      email: user.email,
-    }, user, { new: true, upsert: true });
-    if (bot) {
-      await models.Users.findByIdAndUpdate(newUser._id, {
-        $push: {
-          bots: bot,
-        },
-      });
+    const isExists = await models.Users.findOne({
+      pseudo: user.pseudo,
+    });
+    if (!isExists) {
+      const newUser = await models.Users.findOneAndUpdate({
+        email: user.email,
+      }, user, { new: true, upsert: true });
+      if (bot) {
+        await models.Users.findByIdAndUpdate(newUser._id, {
+          $push: {
+            bots: bot,
+          },
+        });
+      }
+      return newUser;
     }
-    return newUser;
+    throw new Error('Pseudo already exists');
   } catch (error) {
     return error;
   }

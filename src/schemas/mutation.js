@@ -1,6 +1,6 @@
 export default `
   type Mutation {
-    createUser(name: String, email: String, password: String!, role: Int!, bots: BotInput): User!
+    createUser(name: String, pseudo: String, email: String, password: String!, role: Int!, bots: BotInput): User!
     updateUser(name: String, email: String, password: String, birthday: String, photo: String, city: String, role: Int, bots: BotInput, activity: UserActivityInput, projects: [UserProjectsInput]): User!
     updateUserPoint(point: PointInput): User!
     updateUserPassword(id: ID!, password: String!): User!

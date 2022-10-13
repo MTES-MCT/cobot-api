@@ -4,6 +4,7 @@ export default `
     email: String
     password: String
     name: String
+    pseudo: String
     birthday: String,
     photo: String,
     city: String,
