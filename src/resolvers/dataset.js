@@ -272,7 +272,6 @@ export const DataSetByRadius = async (parent, args, { models }) => {
     .skip(args.offset)
     .limit(args.limit);
   const dataset = _.map(data, rawFieldToString);
-  console.log(dataset);
   return dataset;
 };
 
