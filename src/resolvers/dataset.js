@@ -243,6 +243,8 @@ export const DataSetByRadius = async (parent, args, { models }) => {
       $project: {
         _id: 1,
         file: 1,
+        class: 1,
+        isObstacle: 1,
         usersAnswers: 1,
         metadata: 1,
         user: 1,
@@ -270,6 +272,7 @@ export const DataSetByRadius = async (parent, args, { models }) => {
     .skip(args.offset)
     .limit(args.limit);
   const dataset = _.map(data, rawFieldToString);
+  console.log(dataset);
   return dataset;
 };
 
