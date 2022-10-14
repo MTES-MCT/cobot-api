@@ -265,14 +265,6 @@ export const DataSetByRadius = async (parent, args, { models }) => {
       },
     },
     {
-      $lookup: {
-        from: 'users',
-        localField: 'status.userId',
-        foreignField: '_id',
-        as: 'user',
-      },
-    },
-    {
       $sort: {
         'metadata.geoData.createdAt': -1,
       },
@@ -280,6 +272,17 @@ export const DataSetByRadius = async (parent, args, { models }) => {
   ])
     .skip(args.offset)
     .limit(args.limit);
+  await new Promise(async (resolve) => {
+    await Promise.map(data, async (d) => {
+      if (d.status) {
+        await Promise.map(d.status, async (status) => {
+          const user = await models.Users.findOne({ _id: status.userId });
+          status.user = user.pseudo || user.name;
+        });
+      }
+    });
+    resolve();
+  });
   const dataset = _.map(data, rawFieldToString);
   return dataset;
 };

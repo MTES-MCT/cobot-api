@@ -30,6 +30,6 @@ export default `
     userId: ID!
     status: Int
     updatedAt: String
-    user: User
+    user: String
   }
 `;
