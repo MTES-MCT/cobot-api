@@ -8,6 +8,7 @@ export default `
     updateUserActivity(id: ID!, activity: UserActivityInput!): User!
     updateUserProjects(id: ID!, projects: UserProjectsInput!): User!
     updateUserProjectsRole(email: String!, projects: UserProjectsInput!): User!
+    updateDatasetStatus(id: ID!, status: Int!): DataSet!
     authorization(email: String!, password: String!): String!
     loginByBot(channel: String!, channelUid: String!): User!
     dataSetAnswers(id: ID!, answer: String!): User!

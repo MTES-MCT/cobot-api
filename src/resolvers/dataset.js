@@ -10,7 +10,7 @@ import { Storage } from '@google-cloud/storage';
 import { AutoMlClient } from '@google-cloud/automl';
 import gm from 'gm';
 
-import { checkRoleAndResolve, checkAuthAndResolve, pubsub, withFilter, UPLOAD_PROGRESS, ADMIN, CONTRIBUTION_ADDED } from './common';
+import { checkAuthAndResolve, pubsub, withFilter, UPLOAD_PROGRESS, ADMIN, CONTRIBUTION_ADDED } from './common';
 
 const projectId = '244101471703';
 const location = 'us-central1';
@@ -248,6 +248,7 @@ export const DataSetByRadius = async (parent, args, { models }) => {
         usersAnswers: 1,
         metadata: 1,
         user: 1,
+        status: 1,
         numAnswers: {
           $size: {
             $ifNull: ['$usersAnswers', []],
@@ -264,6 +265,14 @@ export const DataSetByRadius = async (parent, args, { models }) => {
       },
     },
     {
+      $lookup: {
+        from: 'users',
+        localField: 'status.userId',
+        foreignField: '_id',
+        as: 'user',
+      },
+    },
+    {
       $sort: {
         'metadata.geoData.createdAt': -1,
       },
@@ -274,6 +283,22 @@ export const DataSetByRadius = async (parent, args, { models }) => {
   const dataset = _.map(data, rawFieldToString);
   return dataset;
 };
+
+export const updateDatasetStatus = (parent, args, { models, req }) => checkAuthAndResolve(
+  req,
+  async (user) => {
+    const status = await models.DataSet.findByIdAndUpdate(args.id, {
+      $push: {
+        status: {
+          userId: user.id,
+          status: args.status,
+          updatedAt: new Date(),
+        },
+      },
+    }, { new: true });
+    return status;
+  },
+);
 
 export const DataSetNumLabel = (parent, args, { models, req }) => checkAuthAndResolve(
   req,

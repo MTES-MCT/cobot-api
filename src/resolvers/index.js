@@ -18,7 +18,7 @@ import {
   loginByBot,
 } from './user';
 import Actions from './action';
-import { AutoMLExport, checkAutoMLFiles, DataSet, DataSetBySource, DataSetByRadius, DataSetStats, dataSetAnswers, dataDelete, DataSetNumLabel, CountDataSetBySource } from './dataset';
+import { AutoMLExport, checkAutoMLFiles, DataSet, DataSetBySource, DataSetByRadius, DataSetStats, dataSetAnswers, dataDelete, DataSetNumLabel, CountDataSetBySource, updateDatasetStatus } from './dataset';
 import { Messages, Message, updateMessage, deleteMessage } from './messages';
 import {
   Project,
@@ -101,6 +101,8 @@ export default {
     createLabel,
     updateLabel,
     labelDelete,
+
+    updateDatasetStatus,
   },
   Subscription: {
     contributionAdded,

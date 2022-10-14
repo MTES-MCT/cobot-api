@@ -12,6 +12,7 @@ export default `
     numAnswers: Int
     class: String
     isObstacle: String
+    status: [Status]
   }
 
   type Metadata {
@@ -23,5 +24,12 @@ export default `
     originalHeight: Int
     originalOrientation: Int
     distance: Float
+  }
+  
+  type Status {
+    userId: ID!
+    status: Int
+    updatedAt: String
+    user: User
   }
 `;

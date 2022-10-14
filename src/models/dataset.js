@@ -30,6 +30,15 @@ const datasetSchema = mongoose.Schema({
     createdAt: Date,
   }],
   user_doc: { type: mongoose.Schema.Types.ObjectId, ref: 'users' },
+  status: [
+    {
+      userId: { type: mongoose.Schema.Types.ObjectId, ref: 'Users' },
+      status: {
+        type: Number,
+      },
+      updatedAt: Date,
+    },
+  ],
 }, {
   collection: 'dataset',
 });
