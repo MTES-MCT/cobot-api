@@ -117,7 +117,10 @@ export const createUser = async (parent, args, { models }) => {
   user.password = await bcrypt.hash(user.password, 12);
   try {
     const isExists = await models.Users.findOne({
-      pseudo: user.pseudo,
+      $or: [
+        { pseudo: user.pseudo },
+        { email: user.email },
+      ],
     });
     if (!isExists) {
       const newUser = await models.Users.findOneAndUpdate({
@@ -132,7 +135,7 @@ export const createUser = async (parent, args, { models }) => {
       }
       return newUser;
     }
-    throw new Error('Pseudo already exists');
+    throw new Error('Pseudo or Email already exists');
   } catch (error) {
     return error;
   }
