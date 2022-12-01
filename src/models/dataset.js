@@ -10,7 +10,28 @@ const datasetSchema = mongoose.Schema({
   metadata: {
     source: String,
     id: { type: mongoose.Schema.Types.ObjectId, ref: 'Projects' },
-    geoData: {},
+    geoData: {
+      createdAt: Date,
+      location: {
+        type: {
+          type: String,
+          enum: ['Point'],
+          default: 'Point',
+        },
+        coordinates: {
+          type: [Number],
+        },
+        speed: {
+          type: mongoose.Types.Decimal128,
+        },
+        altitude: {
+          type: mongoose.Types.Decimal128,
+        },
+        acciracy: {
+          type: mongoose.Types.Decimal128,
+        },
+      },
+    },
     raw: {},
     originalWidth: Number,
     originalHeight: Number,
@@ -43,6 +64,7 @@ const datasetSchema = mongoose.Schema({
   collection: 'dataset',
 });
 
+// datasetSchema.index({ metadata.geoData.location: '2dsphere' });
 const DataSet = mongoose.model('DataSet', datasetSchema);
 
 export default DataSet;
