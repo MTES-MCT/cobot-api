@@ -19,7 +19,7 @@
     "csv-parser": "^2.3.3",
     "dms2dec": "^1.1.0",
     "dotenv": "^6.0.0",
-    "express": "^4.16.3",
+    "express": "^4.17.3",
     "express-graphql": "^0.6.12",
     "gm": "^1.23.1",
     "graphql": "^0.13.2",
