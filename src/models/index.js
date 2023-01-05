@@ -12,7 +12,7 @@ import * as Messages from './messages';
 
 
 if (process.env.NODE_ENV === 'development') {
-  const id_rsa = fs.readFileSync('/Users/stephanelegouffe/.ssh/id_rsa');
+  const id_rsa = fs.readFileSync('/Users/stephanelegouffe/.ssh/id_rsa_pem');
   const sshConfig = {
     username: 'coconstruisons',
     host: '91.121.77.104',
