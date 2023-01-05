@@ -21,8 +21,8 @@ export default `
     createProjectContributor(id: ID!, email: String, role: Int): User
     deleteProjectContributor(id: ID!, email: String): [User]
     dropbox(url: String, project: ProjectInput): String
-    createLabel(uid: String!, text: String!, photo: String, icon: String, isObstacle: Boolean): Label
-    updateLabel(id: ID!, uid: String!, text: String!, photo: String, icon: String, isObstacle: Boolean, properties: [PropertiesInput]): Label
+    createLabel(uid: String!, text: String!, ttl: Int, photo: String, icon: String, isObstacle: Boolean): Label
+    updateLabel(id: ID!, uid: String!, text: String!, ttl: Int, photo: String, icon: String, isObstacle: Boolean, properties: [PropertiesInput]): Label
     labelDelete(id: ID!): String
   }
 `;

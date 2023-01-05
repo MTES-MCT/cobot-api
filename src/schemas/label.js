@@ -3,6 +3,7 @@ export default `
     _id: ID!
     uid: String!
     text: String!
+    ttl: Int
     order: Int!
     img: String
     photo: String

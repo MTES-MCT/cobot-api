@@ -16,6 +16,7 @@ export const createLabel = (parent, args, { models, req }) => checkRoleAndResolv
     const label = {
       uid: args.uid,
       text: args.text,
+      ttl: args.ttl,
       photo: args.photo,
       icon: args.icon,
       isObstacle: args.isObstacle,
@@ -36,6 +37,7 @@ export const updateLabel = (parent, args, { models, req }) => checkRoleAndResolv
     const label = {
       uid: args.uid,
       text: args.text,
+      ttl: args.ttl,
       photo: args.photo,
       icon: args.icon,
       isObstacle: args.isObstacle,

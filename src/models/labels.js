@@ -4,6 +4,7 @@ const labelsSchema = mongoose.Schema({
   uid: String,
   type: { type: String, default: 'polygon' },
   text: String,
+  ttl: Number,
   photo: String,
   icon: String,
   isObstacle: Boolean,
