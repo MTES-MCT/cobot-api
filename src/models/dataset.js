@@ -5,6 +5,7 @@ const datasetSchema = mongoose.Schema({
   question: String,
   class: String,
   isObstacle: Boolean,
+  isExpired: Boolean,
   // user: { type: mongoose.Schema.Types.ObjectId, ref: 'users' },
   user: mongoose.Schema.Types.ObjectId,
   metadata: {

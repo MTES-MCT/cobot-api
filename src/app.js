@@ -161,6 +161,15 @@ app.post('/export-to-automl', async (req, res) => {
   // });
 });
 
+app.get('/dataset-ttl', async (req, res) => {
+  if (req.headers.authorization && req.headers.authorization === process.env.TTL_TOKEN) {
+    const checkResult = await controllers.DatasetTtlChecker();
+    res.send(200, checkResult);
+  } else {
+    res.sendStatus(401);
+  }
+});
+
 app.use(
   '/graphql',
   bodyParser.json(),

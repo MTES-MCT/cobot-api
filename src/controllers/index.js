@@ -16,6 +16,7 @@ import _ from 'lodash';
 import jsonxml from 'jsontoxml';
 import archiver from 'archiver';
 import mvFile from 'move-file';
+import moment from 'moment';
 
 import { checkAuthAndResolve } from '../policies';
 import models from '../models';
@@ -322,6 +323,36 @@ const ObjectDetection = async (file) => {
   }
 };
 
+const DatasetTtlChecker = async () => {
+  try {
+    // First, delete all dataset without Geodata Fields
+    const noGeoData = await models.DataSet.deleteMany({
+      'metadata.geoData': null,
+    });
+    console.log(noGeoData);
+    // Second, update all dataset with expired TTL
+    const dbLabels = await models.Labels.find({ ttl: { $gt: 0 } });
+    _.each(dbLabels, async (label) => {
+      const ttlDate = moment().subtract(label.ttl, 'second').format('DD-MM-YYYY');
+      const dataset = await models.DataSet.updateMany({
+        class: label.text,
+        isExpired: {
+          $ne: true,
+        },
+        'metadata.geoData.createdAt': {
+          $lt: ttlDate,
+        },
+      }, {
+        isExpired: true,
+      });
+      console.log(dataset);
+    });
+    return dbLabels;
+  } catch (e) {
+    return e;
+  }
+};
+
 module.exports = {
   Auth,
   User,
@@ -332,4 +363,5 @@ module.exports = {
   Unzip,
   ExportData,
   ObjectDetection,
+  DatasetTtlChecker,
 };

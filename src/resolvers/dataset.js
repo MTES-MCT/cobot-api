@@ -232,6 +232,13 @@ export const DataSetByRadius = async (parent, args, { models }) => {
   coords = coords.split(' ');
   const data = await models.DataSet.aggregate([
     {
+      $match: {
+        isExpired: {
+          $ne: true,
+        },
+      },
+    },
+    {
       $geoNear: {
         near: { type: 'Point', coordinates: [parseFloat(coords[0], 10), parseFloat(coords[1], 10)] },
         distanceField: 'metadata.distance',
