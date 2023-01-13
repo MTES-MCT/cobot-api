@@ -334,6 +334,23 @@ const DatasetTtlChecker = async () => {
     const dbLabels = await models.Labels.find({ ttl: { $gt: 0 } });
     _.each(dbLabels, async (label) => {
       const ttlDate = moment().subtract(label.ttl, 'second').format('DD-MM-YYYY');
+      const expiredDataset = await models.DataSet.find({
+        class: label.text,
+        isExpired: {
+          $ne: true,
+        },
+        'metadata.geoData.createdAt': {
+          $lt: ttlDate,
+        },
+      });
+      const expiredDatasetFileName = _.map(expiredDataset, 'file');
+      await axios.post(`${process.env.GIS_ENDPOINT}/gis/segments/update-ttl-state`, {
+        files: expiredDatasetFileName,
+      }, {
+        headers: {
+          Authorization: process.env.TTL_TOKEN,
+        },
+      });
       const dataset = await models.DataSet.updateMany({
         class: label.text,
         isExpired: {

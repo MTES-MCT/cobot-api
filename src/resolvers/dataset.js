@@ -129,6 +129,7 @@ const bucket = storage.bucket('ia-garbage-build');
 export const DataSet = (parent, args, { models, req }) => checkAuthAndResolve(
   req,
   async (user) => {
+    console.log('*** DataSet ***');
     let criteria = {
     };
     if (args.notAnswered) {
@@ -144,6 +145,8 @@ export const DataSet = (parent, args, { models, req }) => checkAuthAndResolve(
     if (args.id) {
       criteria._id = models.toObjectId(args.id);
     }
+    criteria.isExpired = { $ne: true };
+    console.log('\t criteria', criteria);
     const datas = await models.DataSet.aggregate()
       .match(criteria)
       .lookup({
@@ -228,22 +231,24 @@ export const DataSetBySource = (parent, args, { models, req }) => checkAuthAndRe
 );
 
 export const DataSetByRadius = async (parent, args, { models }) => {
+  console.log('*** DataSetByRadius ***');
   let coords = (args.geo) ? args.geo : '48.8420791 2.3794422';
   coords = coords.split(' ');
+  console.log('\t coords :', coords);
   const data = await models.DataSet.aggregate([
-    {
-      $match: {
-        isExpired: {
-          $ne: true,
-        },
-      },
-    },
     {
       $geoNear: {
         near: { type: 'Point', coordinates: [parseFloat(coords[0], 10), parseFloat(coords[1], 10)] },
         distanceField: 'metadata.distance',
         maxDistance: args.radius,
         spherical: true,
+      },
+    },
+    {
+      $match: {
+        isExpired: {
+          $ne: true,
+        },
       },
     },
     {
@@ -291,6 +296,7 @@ export const DataSetByRadius = async (parent, args, { models }) => {
     resolve();
   });
   const dataset = _.map(data, rawFieldToString);
+  console.log('\t dataset length :', dataset.length);
   return dataset;
 };
 
