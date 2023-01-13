@@ -336,9 +336,9 @@ const DatasetTtlChecker = async () => {
       const ttlDate = moment().subtract(label.ttl, 'second').format('DD-MM-YYYY');
       const expiredDataset = await models.DataSet.find({
         class: label.text,
-        isExpired: {
-          $ne: true,
-        },
+        // isExpired: {
+        //   $ne: true,
+        // },
         'metadata.geoData.createdAt': {
           $lt: ttlDate,
         },
@@ -353,9 +353,9 @@ const DatasetTtlChecker = async () => {
       });
       const dataset = await models.DataSet.updateMany({
         class: label.text,
-        isExpired: {
-          $ne: true,
-        },
+        // isExpired: {
+        //   $ne: true,
+        // },
         'metadata.geoData.createdAt': {
           $lt: ttlDate,
         },
