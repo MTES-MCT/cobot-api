@@ -333,7 +333,7 @@ const DatasetTtlChecker = async () => {
     // Second, update all dataset with expired TTL
     const dbLabels = await models.Labels.find({ ttl: { $gt: 0 } });
     _.each(dbLabels, async (label) => {
-      const ttlDate = moment().subtract(label.ttl, 'second').format('DD-MM-YYYY');
+      const ttlDate = moment().subtract(label.ttl, 'second').format('YYYY-MM-DD');
       const expiredDataset = await models.DataSet.find({
         class: label.text,
         // isExpired: {
