@@ -24,5 +24,7 @@ export default `
     createLabel(uid: String!, text: String!, ttl: Int, photo: String, icon: String, isObstacle: Boolean): Label
     updateLabel(id: ID!, uid: String!, text: String!, ttl: Int, photo: String, icon: String, isObstacle: Boolean, properties: [PropertiesInput]): Label
     labelDelete(id: ID!): String
+    forgotPassword(email: String!): Boolean
+    updateForgotPassword(token: String!, password: String!): Boolean
   }
 `;

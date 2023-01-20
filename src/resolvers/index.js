@@ -16,6 +16,8 @@ import {
   userRanking,
   authorization,
   loginByBot,
+  forgotPassword,
+  updateForgotPassword,
 } from './user';
 import Actions from './action';
 import { AutoMLExport, checkAutoMLFiles, DataSet, DataSetBySource, DataSetByRadius, DataSetStats, dataSetAnswers, dataDelete, DataSetNumLabel, CountDataSetBySource, updateDatasetStatus } from './dataset';
@@ -103,6 +105,9 @@ export default {
     labelDelete,
 
     updateDatasetStatus,
+
+    forgotPassword,
+    updateForgotPassword,
   },
   Subscription: {
     contributionAdded,

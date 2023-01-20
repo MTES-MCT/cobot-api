@@ -4,6 +4,7 @@ const usersSchema = mongoose.Schema({
   _id: { type: mongoose.Schema.Types.ObjectId },
   email: { type: String, unique: true },
   password: String,
+  resetPasswordToken: String,
   pseudo: String,
   name: String,
   reminder: Date,

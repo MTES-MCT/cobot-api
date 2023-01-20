@@ -313,3 +313,49 @@ export const loginByBot = async (parent, args, { models }) => {
   user.token = token;
   return user;
 };
+
+export const forgotPassword = async (parent, args, { models }) => {
+  const user = await models.Users.findOne({ email: args.email });
+  if (user) {
+    const token = jwt.sign(
+      {},
+      process.env.JWT_SECRET,
+      {
+        expiresIn: '1h',
+      },
+    );
+    await models.Users.findByIdAndUpdate(user.id, {
+      resetPasswordToken: token,
+    });
+    return true;
+  }
+  return false;
+};
+
+export const updateForgotPassword = async (parent, args, { models }) => {
+  try {
+    jwt.verify(
+      args.token,
+      process.env.JWT_SECRET,
+    );
+    const user = await models.Users.findOne({
+      resetPasswordToken: args.token,
+    });
+    if (user) {
+      try {
+        await models.Users.findByIdAndUpdate(user.id, {
+          password: await bcrypt.hash(args.password, 12),
+          resetPasswordToken: null,
+        });
+        return true;
+      } catch (e) {
+        console.log(e);
+        return false;
+      }
+    } else {
+      return false;
+    }
+  } catch (e) {
+    return false;
+  }
+};
