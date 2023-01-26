@@ -4,6 +4,7 @@ import Promise from 'bluebird';
 import jwt from 'jsonwebtoken';
 import _ from 'lodash';
 import { checkAuthAndResolve, checkRoleAndResolve, AUTH_SUPERADMIN } from './common';
+import { SEND_FORGOT_PASSWORD } from '../services/sendinblue';
 
 export const Me = (parent, args, { models, req }) => checkAuthAndResolve(
   req,
@@ -327,6 +328,11 @@ export const forgotPassword = async (parent, args, { models }) => {
     await models.Users.findByIdAndUpdate(user.id, {
       resetPasswordToken: token,
     });
+    try {
+      SEND_FORGOT_PASSWORD(user.email, user.pseudo, token);
+    } catch (e) {
+      console.log(e);
+    }
     return true;
   }
   return false;

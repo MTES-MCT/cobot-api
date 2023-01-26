@@ -39,6 +39,7 @@
     "pretty-bytes": "^5.1.0",
     "restify": "^6.3.4",
     "rimraf": "^2.6.3",
+    "sib-api-v3-sdk": "^8.5.0",
     "stream-length": "^1.0.2",
     "subscriptions-transport-ws": "^0.9.8",
     "unzipper": "^0.9.11",
