@@ -366,13 +366,19 @@ export const updateForgotPassword = async (parent, args, { models }) => {
   }
 };
 
-export const updateForgotPasswordCheckCode = async (parent, args) => {
+export const updateForgotPasswordCheckCode = async (parent, args, { models }) => {
   try {
     jwt.verify(
       args.token,
       process.env.JWT_SECRET,
     );
-    return true;
+    const user = await models.Users.findOne({
+      resetPasswordToken: args.token,
+    });
+    if (user) {
+      return true;
+    }
+    return false;
   } catch (e) {
     return false;
   }
