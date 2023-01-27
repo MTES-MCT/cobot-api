@@ -26,5 +26,6 @@ export default `
     labelDelete(id: ID!): String
     forgotPassword(email: String!): Boolean
     updateForgotPassword(token: String!, password: String!): Boolean
+    updateForgotPasswordCheckCode(token: Strign!): Boolean
   }
 `;

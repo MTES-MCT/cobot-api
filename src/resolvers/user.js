@@ -365,3 +365,15 @@ export const updateForgotPassword = async (parent, args, { models }) => {
     return false;
   }
 };
+
+export const updateForgotPasswordCheckCode = async (parent, args) => {
+  try {
+    jwt.verify(
+      args.token,
+      process.env.JWT_SECRET,
+    );
+    return true;
+  } catch (e) {
+    return false;
+  }
+};

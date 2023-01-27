@@ -18,6 +18,7 @@ import {
   loginByBot,
   forgotPassword,
   updateForgotPassword,
+  updateForgotPasswordCheckCode,
 } from './user';
 import Actions from './action';
 import { AutoMLExport, checkAutoMLFiles, DataSet, DataSetBySource, DataSetByRadius, DataSetStats, dataSetAnswers, dataDelete, DataSetNumLabel, CountDataSetBySource, updateDatasetStatus } from './dataset';
@@ -108,6 +109,7 @@ export default {
 
     forgotPassword,
     updateForgotPassword,
+    updateForgotPasswordCheckCode,
   },
   Subscription: {
     contributionAdded,
