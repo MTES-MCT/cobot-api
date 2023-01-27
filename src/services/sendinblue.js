@@ -16,7 +16,7 @@ const SEND_FORGOT_PASSWORD = async (email, pseudo, token) => {
   ];
   SbiSmptEmail.params = {
     PSEUDO: pseudo,
-    URLVALIDATION: `https://shoot.wawy.io?token=${token}`,
+    URLVALIDATION: `https://shoot.wawy.io/forgot-password?token=${token}`,
   };
   try {
     const results = await SbiTE.sendTransacEmail(SbiSmptEmail);
