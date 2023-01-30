@@ -21,5 +21,6 @@ export default `
     WakeUpUsers(lastAnswers: String): [User]
     userRanking(id: ID!): [User]
     Labels: [Label]
+    Contact(subject: String!, message: String!): Boolean
   }
 `;

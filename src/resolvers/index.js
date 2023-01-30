@@ -44,6 +44,8 @@ import { dropbox, uploadProgress } from './upload';
 
 import contributionAdded from './contribution';
 
+import { Contact } from './formulaires';
+
 export default {
   Query: {
     AutoLogin,
@@ -72,6 +74,8 @@ export default {
 
     Project,
     ProjectContributors,
+
+    Contact,
   },
   Mutation: {
     createUser,

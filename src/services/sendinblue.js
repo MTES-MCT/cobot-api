@@ -26,6 +26,29 @@ const SEND_FORGOT_PASSWORD = async (email, pseudo, token) => {
   }
 };
 
+const SEND_CONTACT_FORM = async (email, pseudo, subject, message) => {
+  // contact@street-co.com
+  SbiSmptEmail.templateId = 146;
+  SbiSmptEmail.to = [
+    {
+      email: 'slegouffe@gmail.com',
+    },
+  ];
+  SbiSmptEmail.params = {
+    EMAIL: email,
+    PSEUDO: pseudo,
+    SUBJECT: subject,
+    MESSAGE: message,
+  };
+  try {
+    const results = await SbiTE.sendTransacEmail(SbiSmptEmail);
+    console.log(results);
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 module.exports = {
   SEND_FORGOT_PASSWORD,
+  SEND_CONTACT_FORM,
 };
