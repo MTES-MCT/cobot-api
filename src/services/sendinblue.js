@@ -27,11 +27,10 @@ const SEND_FORGOT_PASSWORD = async (email, pseudo, token) => {
 };
 
 const SEND_CONTACT_FORM = async (email, pseudo, subject, message) => {
-  // contact@street-co.com
   SbiSmptEmail.templateId = 146;
   SbiSmptEmail.to = [
     {
-      email: 'slegouffe@gmail.com',
+      email: process.env.CONTACT_FORM_SEND_TO,
     },
   ];
   SbiSmptEmail.params = {
