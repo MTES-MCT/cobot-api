@@ -15,6 +15,7 @@ const usersSchema = mongoose.Schema({
     num: Number,
     createdAt: Date,
     object: String,
+    objectType: String,
   }],
   role: {
     type: Number,

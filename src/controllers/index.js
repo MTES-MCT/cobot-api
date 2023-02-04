@@ -329,7 +329,6 @@ const DatasetTtlChecker = async () => {
     const noGeoData = await models.DataSet.deleteMany({
       'metadata.geoData': null,
     });
-    console.log(noGeoData);
     // Second, update all dataset with expired TTL
     const dbLabels = await models.Labels.find({ ttl: { $gt: 0 } });
     _.each(dbLabels, async (label) => {
@@ -370,6 +369,34 @@ const DatasetTtlChecker = async () => {
   }
 };
 
+const UpdateUserScore = async (token, objectId) => {
+  try {
+    const t = jwt.verify(
+      token.replace('Bearer ', ''),
+      process.env.JWT_SECRET,
+    );
+    if (t && t.id) {
+      const point = {
+        num: 1,
+        object: objectId,
+        createdAt: new Date(),
+        objectType: 'segment',
+      };
+      const updatedUser = await models.Users.findByIdAndUpdate(t.id, {
+        $push: {
+          point,
+        },
+      }, {
+        new: true,
+      });
+      return updatedUser;
+    }
+    return false;
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 module.exports = {
   Auth,
   User,
@@ -381,4 +408,5 @@ module.exports = {
   ExportData,
   ObjectDetection,
   DatasetTtlChecker,
+  UpdateUserScore,
 };

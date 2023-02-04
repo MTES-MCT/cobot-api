@@ -170,6 +170,15 @@ app.get('/dataset-ttl', async (req, res) => {
   }
 });
 
+app.put('/score', async (req, res) => {
+  if (req.headers.authorization) {
+    await controllers.UpdateUserScore(req.headers.authorization, req.body.segmentId);
+    res.send(200);
+  } else {
+    res.sendStatus(401);
+  }
+});
+
 app.use(
   '/graphql',
   bodyParser.json(),
