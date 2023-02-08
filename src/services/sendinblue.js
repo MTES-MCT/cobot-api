@@ -26,7 +26,7 @@ const SEND_FORGOT_PASSWORD = async (email, pseudo, token) => {
   }
 };
 
-const SEND_CONTACT_FORM = async (email, pseudo, subject, message) => {
+const SEND_CONTACT_FORM = async (email, subject, message) => {
   SbiSmptEmail.templateId = 146;
   SbiSmptEmail.to = [
     {
@@ -35,7 +35,7 @@ const SEND_CONTACT_FORM = async (email, pseudo, subject, message) => {
   ];
   SbiSmptEmail.params = {
     EMAIL: email,
-    PSEUDO: pseudo,
+    PSEUDO: '-',
     SUBJECT: subject,
     MESSAGE: message,
   };
