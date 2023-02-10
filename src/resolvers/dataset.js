@@ -433,12 +433,12 @@ export const dataSetAnswers = async (parent, args, { models, req }) => {
 export const dataDelete = (parent, args, { models, req }) => checkAuthAndResolve(
   req,
   async () => {
-    const dataset = await models.DataSet.findOne({ _id: args.id });
-    await models.Users.findOneAndUpdate({ _id: dataset.user }, {
-      $pop: {
-        point: -1,
-      },
-    });
+    // const dataset = await models.DataSet.findOne({ _id: args.id });
+    // await models.Users.findOneAndUpdate({ _id: dataset.user }, {
+    //   $pop: {
+    //     point: -1,
+    //   },
+    // });
     await models.DataSet.deleteOne({ _id: args.id });
   },
 );
