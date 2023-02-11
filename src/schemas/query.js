@@ -7,6 +7,7 @@ export default `
     DataSet(projectId: ID!, id: ID, notAnswered: Boolean): DataSet
     DataSetBySource(id: ID!, user: ID, label: String, offset: Int, limit: Int, label: String): [DataSet]
     DataSetByRadius(geo: String, radius: Int, offset: Int, limit: Int): [DataSet]
+    DataSetByBbox(bbox: String!, offset: Int, limit: Int): [DataSet]
     DataSetStats(id: ID!): Statistics
     DataSetNumLabel(projectId: ID!, label: String!): String
     CountDataSetBySource(projectId: ID!, user: ID, label: String): Int

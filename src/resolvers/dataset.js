@@ -11,6 +11,7 @@ import { AutoMlClient } from '@google-cloud/automl';
 import gm from 'gm';
 
 import { checkAuthAndResolve, pubsub, withFilter, UPLOAD_PROGRESS, ADMIN, CONTRIBUTION_ADDED } from './common';
+import { UpdateUserScore } from '../controllers';
 
 const projectId = '244101471703';
 const location = 'us-central1';
@@ -300,6 +301,78 @@ export const DataSetByRadius = async (parent, args, { models }) => {
   return dataset;
 };
 
+export const DataSetByBbox = async (parent, args, { models }) => {
+  console.log('*** DataSetByBbox ***');
+  const bbox = args.bbox.split(',');
+  console.log('\t coords :', bbox);
+  const coords = [
+    [parseFloat(bbox[0]), parseFloat(bbox[1])],
+    [parseFloat(bbox[2]), parseFloat(bbox[3])],
+  ];
+  console.log(coords);
+  const data = await models.DataSet.aggregate([
+    {
+      $match: {
+        'metadata.geoData.location': {
+          $geoWithin: {
+            $box: coords,
+          },
+        },
+        isExpired: {
+          $ne: true,
+        },
+      },
+    },
+    {
+      $project: {
+        _id: 1,
+        file: 1,
+        class: 1,
+        isObstacle: 1,
+        usersAnswers: 1,
+        metadata: 1,
+        user: 1,
+        status: 1,
+        numAnswers: {
+          $size: {
+            $ifNull: ['$usersAnswers', []],
+          },
+        },
+      },
+    },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'user',
+        foreignField: '_id',
+        as: 'user_doc',
+      },
+    },
+    {
+      $sort: {
+        'metadata.geoData.createdAt': -1,
+      },
+    },
+  ])
+    .skip(args.offset)
+    .limit(args.limit);
+  await new Promise(async (resolve) => {
+    await Promise.map(data, async (d) => {
+      if (d.status) {
+        await Promise.map(d.status, async (status) => {
+          const user = await models.Users.findOne({ _id: status.userId });
+          status.user = user.pseudo || user.name;
+        });
+      }
+    });
+    resolve();
+  });
+  const dataset = _.map(data, rawFieldToString);
+  console.log('\t dataset length :', dataset.length);
+  return dataset;
+};
+
+
 export const updateDatasetStatus = (parent, args, { models, req }) => checkAuthAndResolve(
   req,
   async (user) => {
@@ -433,13 +506,16 @@ export const dataSetAnswers = async (parent, args, { models, req }) => {
 export const dataDelete = (parent, args, { models, req }) => checkAuthAndResolve(
   req,
   async () => {
+    console.log(req.headers);
+    // console.log(args.token)
+    // UpdateUserScore()
     // const dataset = await models.DataSet.findOne({ _id: args.id });
     // await models.Users.findOneAndUpdate({ _id: dataset.user }, {
     //   $pop: {
     //     point: -1,
     //   },
     // });
-    await models.DataSet.deleteOne({ _id: args.id });
+    // await models.DataSet.deleteOne({ _id: args.id });
   },
 );
 
