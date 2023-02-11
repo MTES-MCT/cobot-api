@@ -1,5 +1,5 @@
 /* eslint-disable no-underscore-dangle */
-import fs, { copyFileSync } from 'fs';
+import fs from 'fs';
 import csv from 'csv-parser';
 import path from 'path';
 import _ from 'lodash';
@@ -11,7 +11,6 @@ import { AutoMlClient } from '@google-cloud/automl';
 import gm from 'gm';
 
 import { checkAuthAndResolve, pubsub, withFilter, UPLOAD_PROGRESS, ADMIN, CONTRIBUTION_ADDED } from './common';
-import { UpdateUserScore } from '../controllers';
 
 const projectId = '244101471703';
 const location = 'us-central1';
@@ -505,17 +504,24 @@ export const dataSetAnswers = async (parent, args, { models, req }) => {
 
 export const dataDelete = (parent, args, { models, req }) => checkAuthAndResolve(
   req,
-  async () => {
-    console.log(req.headers);
-    // console.log(args.token)
-    // UpdateUserScore()
-    // const dataset = await models.DataSet.findOne({ _id: args.id });
-    // await models.Users.findOneAndUpdate({ _id: dataset.user }, {
-    //   $pop: {
-    //     point: -1,
-    //   },
-    // });
-    // await models.DataSet.deleteOne({ _id: args.id });
+  async (user) => {
+    const dataset = await models.DataSet.findOne({ _id: args.id });
+    if (dataset.user.toString() !== user.id) {
+      const point = {
+        num: 1,
+        object: dataset.file,
+        createdAt: new Date(),
+        objectType: 'obstacle-delete',
+      };
+      await models.Users.findByIdAndUpdate(user.id, {
+        $push: {
+          point,
+        },
+      }, {
+        new: true,
+      });
+    }
+    await models.DataSet.deleteOne({ _id: args.id });
   },
 );
 
