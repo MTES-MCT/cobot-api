@@ -371,6 +371,56 @@ export const DataSetByBbox = async (parent, args, { models }) => {
   return dataset;
 };
 
+export const DataSetById = async (parent, args, { models }) => {
+  console.log('*** DataSetById ***');
+  const data = await models.DataSet.aggregate([
+    {
+      $match: {
+        _id: models.toObjectId(args.id),
+      },
+    },
+    {
+      $project: {
+        _id: 1,
+        file: 1,
+        class: 1,
+        isObstacle: 1,
+        usersAnswers: 1,
+        metadata: 1,
+        user: 1,
+        status: 1,
+        numAnswers: {
+          $size: {
+            $ifNull: ['$usersAnswers', []],
+          },
+        },
+      },
+    },
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'user',
+        foreignField: '_id',
+        as: 'user_doc',
+      },
+    },
+  ]);
+  await new Promise(async (resolve) => {
+    await Promise.map(data, async (d) => {
+      if (d.status) {
+        await Promise.map(d.status, async (status) => {
+          const user = await models.Users.findOne({ _id: status.userId });
+          status.user = user.pseudo || user.name;
+        });
+      }
+    });
+    resolve();
+  });
+  const dataset = _.map(data, rawFieldToString);
+  console.log('\t dataset length :', dataset.length);
+  return dataset[0];
+};
+
 
 export const updateDatasetStatus = (parent, args, { models, req }) => checkAuthAndResolve(
   req,

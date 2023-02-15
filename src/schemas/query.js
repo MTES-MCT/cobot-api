@@ -10,6 +10,7 @@ export default `
     DataSetByBbox(bbox: String!, offset: Int, limit: Int): [DataSet]
     DataSetStats(id: ID!): Statistics
     DataSetNumLabel(projectId: ID!, label: String!): String
+    DataSetById(id: ID!): DataSet
     CountDataSetBySource(projectId: ID!, user: ID, label: String): Int
     Me: User
     userPhotos: [DataSet]
