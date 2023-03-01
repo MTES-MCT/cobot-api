@@ -54,7 +54,8 @@ const Auth = async (email, password) => {
 const User = async (context) => {
   try {
     return checkAuthAndResolve(context, async (token) => {
-      const user = await models.Users.findById(token.id);
+      const criteria = (context.query.id) ? context.query.id : token.id;
+      const user = await models.Users.findById(criteria);
       if (!user) {
         throw new Error('No user with that email');
       } else {

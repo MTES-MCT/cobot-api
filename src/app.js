@@ -60,7 +60,8 @@ router.get('/user', async (req, res) => {
       id: user._id,
       email: user.email,
       name: user.name,
-      role: user.projects[0].role,
+      pseudo: user.pseudo,
+      role: (user.projects[0]) ? user.projects[0].role : null,
       projects: user.projects,
     });
   } catch (error) {
