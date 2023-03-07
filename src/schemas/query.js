@@ -8,9 +8,9 @@ export default `
     DataSetBySource(id: ID!, user: ID, label: String, offset: Int, limit: Int, label: String): [DataSet]
     DataSetByRadius(geo: String, radius: Int, offset: Int, limit: Int): [DataSet]
     DataSetByBbox(bbox: String!, offset: Int, limit: Int): [DataSet]
-    DataSetStats(id: ID!): Statistics
+    DataSetStats(id: String!): Statistics
     DataSetNumLabel(projectId: ID!, label: String!): String
-    DataSetById(id: ID!): DataSet
+    DataSetById(ids: String!): [DataSet]
     CountDataSetBySource(projectId: ID!, user: ID, label: String): Int
     Me: User
     userPhotos: [DataSet]

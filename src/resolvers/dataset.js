@@ -373,10 +373,17 @@ export const DataSetByBbox = async (parent, args, { models }) => {
 
 export const DataSetById = async (parent, args, { models }) => {
   console.log('*** DataSetById ***');
+  const arrIds = args.ids.split(',');
+  const ids = [];
+  arrIds.map((id) => {
+    ids.push(models.toObjectId(id.trim()));
+  });
   const data = await models.DataSet.aggregate([
     {
       $match: {
-        _id: models.toObjectId(args.id),
+        _id: {
+          $in: ids,
+        },
       },
     },
     {
@@ -418,7 +425,7 @@ export const DataSetById = async (parent, args, { models }) => {
   });
   const dataset = _.map(data, rawFieldToString);
   console.log('\t dataset length :', dataset.length);
-  return dataset[0];
+  return dataset;
 };
 
 
